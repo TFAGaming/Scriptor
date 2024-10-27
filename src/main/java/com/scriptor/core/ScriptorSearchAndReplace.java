@@ -1,4 +1,4 @@
-package com.scriptor.frames;
+package com.scriptor.core;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,7 +15,7 @@ import java.awt.event.ItemListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TextAreaWordFinder extends JFrame {
+public class ScriptorSearchAndReplace extends JFrame {
     private RSyntaxTextArea textArea;
     private JTextField searchField;
     private JTextField replaceField;
@@ -29,7 +29,7 @@ public class TextAreaWordFinder extends JFrame {
     private int currentMatchIndex = -1;
     private java.util.List<Integer> matchPositions;
 
-    public TextAreaWordFinder(Scriptor scriptor, RSyntaxTextArea textArea) {
+    public ScriptorSearchAndReplace(Scriptor scriptor, RSyntaxTextArea textArea) {
         setTitle("Search & Replace");
         setSize(400, 200);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -81,8 +81,8 @@ public class TextAreaWordFinder extends JFrame {
                 replaceField.setEnabled(isEnabled);
                 replaceButton.setEnabled(isEnabled);
 
-                upButton.setEnabled(!isEnabled);
-                downButton.setEnabled(!isEnabled);
+                //upButton.setEnabled(!isEnabled);
+                //downButton.setEnabled(!isEnabled);
             }
         });
 
@@ -120,9 +120,10 @@ public class TextAreaWordFinder extends JFrame {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        upButton.addActionListener(e -> findNextMatch(true));
-        downButton.addActionListener(e -> findNextMatch(false));
-        searchField.addActionListener(e -> findMatches());
+        upButton.addActionListener((e) -> findNextMatch(true));
+        downButton.addActionListener((e) -> findNextMatch(false));
+        replaceButton.addActionListener((e) -> replaceMatch());
+        searchField.addActionListener((e) -> findMatches());
 
         setVisible(true);
     }
@@ -180,6 +181,37 @@ public class TextAreaWordFinder extends JFrame {
         }
 
         highlightMatch();
+    }
+
+    private void replaceMatch() {
+        if (currentMatchIndex == -1 || matchPositions.isEmpty()) {
+            return;
+        }
+
+        int position = matchPositions.get(currentMatchIndex);
+        String searchText = searchField.getText();
+        String replaceText = replaceField.getText();
+        
+        try {
+            int matchEnd = position + (regexCheck.isSelected() ? getMatchLength(position) : searchText.length());
+            textArea.replaceRange(replaceText, position, matchEnd);
+
+            findMatches();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Replace failed: " + ex.getMessage(),
+                    "Replace Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private int getMatchLength(int position) {
+        String searchText = searchField.getText();
+        String text = textArea.getText().substring(position);
+        Pattern pattern = Pattern.compile(searchText, caseSensitiveCheck.isSelected() ? 0 : Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            return matcher.end();
+        }
+        return searchText.length();
     }
 
     private void highlightMatch() {

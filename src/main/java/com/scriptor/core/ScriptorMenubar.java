@@ -4,10 +4,15 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+
 import com.scriptor.Scriptor;
 
 public class ScriptorMenubar extends JMenuBar {
     public ScriptorMenubar(Scriptor scriptor) {
+        /*
+         * File menu
+         */
         JMenu fileMenu = new JMenu("File");
 
         JMenuItem menuItemNewFile = createMenuItem("New File", TOOL_TIP_TEXT_KEY,
@@ -19,7 +24,8 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemOpenFile = createMenuItem("Open File", TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemOpenFile = createMenuItem("Open File", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         menuItemOpenFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -35,7 +41,8 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemSave = createMenuItem("Save", TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemSave = createMenuItem("Save", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         menuItemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -43,7 +50,8 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemSaveAs = createMenuItem("Save As", TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemSaveAs = createMenuItem("Save As", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK + KeyEvent.SHIFT_DOWN_MASK));
         menuItemSaveAs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -95,16 +103,105 @@ public class ScriptorMenubar extends JMenuBar {
         fileMenu.add(menuItemCloseTab);
         fileMenu.add(menuItemCloseAllTabs);
 
+        /*
+         * Edit menu
+         */
+
+        JMenu editMenu = new JMenu("Edit");
+
+        JMenuItem menuItemUndo = createMenuItem("Undo", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
+        menuItemUndo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+
+                if (textArea.canUndo()) {
+                    textArea.undoLastAction();
+                }
+            }
+        });
+
+        JMenuItem menuItemRedo = createMenuItem("Redo", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK));
+        menuItemRedo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+
+                if (textArea.canRedo()) {
+                    textArea.redoLastAction();
+                }
+            }
+        });
+
+        JMenuItem menuItemCut = createMenuItem("Cut", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
+        menuItemCut.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+
+                textArea.cut();
+            }
+        });
+
+        JMenuItem menuItemCopy = createMenuItem("Copy", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+        menuItemCopy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+
+                textArea.copy();
+            }
+        });
+
+        JMenuItem menuItemPaste = createMenuItem("Paste", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
+        menuItemPaste.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+
+                textArea.paste();
+            }
+        });
+
+        JMenuItem menuItemDelete = createMenuItem("Delete", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+        menuItemDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+
+                // TODO Delete word
+            }
+        });
+
+        JMenuItem menuItemSelectAll = createMenuItem("Select All", TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
+        menuItemSelectAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+
+                textArea.selectAll();
+            }
+        });
+
+        editMenu.add(menuItemUndo);
+        editMenu.add(menuItemRedo);
+        editMenu.addSeparator();
+        editMenu.add(menuItemCut);
+        editMenu.add(menuItemCopy);
+        editMenu.add(menuItemPaste);
+        editMenu.add(menuItemDelete);
+        editMenu.add(menuItemSelectAll);
+
         add(fileMenu);
+        add(editMenu);
     }
-
-    /*
-    private ImageIcon getIcon(String iconName) {
-        ImageIcon icon = new ImageIcon(scriptor.getClass().getResource("/" + iconName));
-
-        return icon;
-    }
-    */
 
     private JMenuItem createMenuItem(String text, /* ImageIcon menuItemIcon, */ String tooltip, KeyStroke accelerator) {
         JMenuItem menuItem = new JMenuItem(text);
@@ -116,15 +213,6 @@ public class ScriptorMenubar extends JMenuBar {
         if (accelerator != null) {
             menuItem.setAccelerator(accelerator);
         }
-
-        /*
-         * if (menuItemIcon != null) {
-         * Image scaledImage = menuItemIcon.getImage().getScaledInstance(16, 16,
-         * Image.SCALE_FAST);
-         * 
-         * menuItem.setIcon(new ImageIcon(scaledImage));
-         * }
-         */
 
         return menuItem;
     }

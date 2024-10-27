@@ -2,7 +2,6 @@ package com.scriptor;
 
 import java.awt.Color;
 import java.io.File;
-import java.util.List;
 import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
@@ -135,6 +134,7 @@ public class Utils {
                 return SyntaxConstants.SYNTAX_STYLE_XML;
             case "yml":
             case "yaml":
+            case "yarn": // .yarn's syntax looks like YAML syntax.
                 return SyntaxConstants.SYNTAX_STYLE_YAML;
             default:
                 return SyntaxConstants.SYNTAX_STYLE_NONE;
@@ -314,6 +314,8 @@ public class Utils {
                         return "audio.svg";
                     case "pdf":
                         return "pdf.svg";
+                    case "yarn":
+                        return "yarn.svg";
                     default:
                         return "document.svg";
                 }
@@ -527,7 +529,11 @@ public class Utils {
             "yaml", 
             "log",
             "txt",
-            "env"
+            "env",
+            "gitignore",
+            "git",
+            "npmignore",
+            "yarn"
         };
 
         for (String extension : supportedExtensions) {
@@ -543,16 +549,22 @@ public class Utils {
         scheme.getStyle(Token.COMMENT_MULTILINE).foreground = Color.GRAY;
         scheme.getStyle(Token.COMMENT_EOL).foreground = Color.GRAY;
         scheme.getStyle(Token.RESERVED_WORD).foreground = Color.BLUE;
+
         scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = Color.decode("#008000");
         scheme.getStyle(Token.LITERAL_CHAR).foreground = Color.decode("#008000");
+        scheme.getStyle(Token.LITERAL_BACKQUOTE).foreground = Color.decode("#008000");
+
         scheme.getStyle(Token.LITERAL_BOOLEAN).foreground = Color.decode("#af00db");
-        scheme.getStyle(Token.REGEX).foreground = Color.decode("#e83535");
+        scheme.getStyle(Token.REGEX).foreground = Color.decode("#e32020");
+
         scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = Color.decode("#979412");
         scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = Color.decode("#979412");
         scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = Color.decode("#979412");
+
         scheme.getStyle(Token.SEPARATOR).foreground = Color.BLACK;
         scheme.getStyle(Token.OPERATOR).foreground = Color.BLACK;
         scheme.getStyle(Token.IDENTIFIER).foreground = Color.BLACK;
+        scheme.getStyle(Token.VARIABLE).foreground = Color.decode("#e8541e");
         scheme.getStyle(Token.FUNCTION).foreground = Color.RED;
         scheme.getStyle(Token.PREPROCESSOR).foreground = Color.BLUE;
 

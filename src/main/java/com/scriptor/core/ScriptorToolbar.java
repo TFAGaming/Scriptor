@@ -9,7 +9,6 @@ import javax.swing.border.EmptyBorder;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import com.scriptor.Scriptor;
-import com.scriptor.frames.TextAreaWordFinder;
 
 public class ScriptorToolbar extends JToolBar {
     //private Scriptor scriptor;
@@ -164,7 +163,7 @@ public class ScriptorToolbar extends JToolBar {
                 RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
 
                 if (textArea != null) {
-                    new TextAreaWordFinder(scriptor, textArea);
+                    new ScriptorSearchAndReplace(scriptor, textArea);
                 }
             }
         });
@@ -189,11 +188,17 @@ public class ScriptorToolbar extends JToolBar {
             }
         });
 
-        JButton buttonStartTerminal = createButton(getIcon("terminal_start.gif"), "Run");
+        JButton buttonStartTerminal = createButton(getIcon("terminal_restart.gif"), "Restart process");
         buttonStartTerminal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //
+                int index = scriptor.tabbedTerminalPane.getSelectedIndex();
+
+                if (index != -1) {
+                    ScriptorTerminal terminal = scriptor.arrayTerminals.get(index);
+
+                    terminal.restartProcess();
+                }
             }
         });
 
@@ -211,7 +216,7 @@ public class ScriptorToolbar extends JToolBar {
             }
         });
 
-        JButton buttonSettings = createButton(getIcon("settings.gif"), "Setting");
+        JButton buttonSettings = createButton(getIcon("settings.gif"), "Settings");
         buttonSettings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

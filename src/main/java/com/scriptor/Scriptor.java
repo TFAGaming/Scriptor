@@ -32,6 +32,7 @@ public class Scriptor extends JFrame implements ActionListener {
     public List<Boolean> arraySavedPaths = new ArrayList<Boolean>();
     public List<RSyntaxTextArea> arrayTextAreas = new ArrayList<RSyntaxTextArea>();
     public List<ScriptorTerminal> arrayTerminals = new ArrayList<ScriptorTerminal>();
+    public boolean _switchedTab = false;
 
     public Scriptor() {
         logger.clearAll();
@@ -148,7 +149,7 @@ public class Scriptor extends JFrame implements ActionListener {
         }
     }
 
-    private RTextScrollPane newTextAreaForTabTextAreaPane(String filePath) {
+    private RTextScrollPane newTextAreaWithScrollPane(String filePath) {
         RSyntaxTextArea textArea = new RSyntaxTextArea(20, 60);
 
         if (filePath != null) {
@@ -185,7 +186,14 @@ public class Scriptor extends JFrame implements ActionListener {
                 int selectedIndex = tabbedTextAreaPane.getSelectedIndex();
 
                 if (selectedIndex != -1) {
-                    if (!arraySavedPaths.get(selectedIndex)) {
+                    if (_switchedTab) {
+                        return;
+                    }
+
+                    if (arrayPaths.get(selectedIndex) == null) {
+                        setTitle("Scriptor - " + "Untitled*");
+                        updateTextAreaTabTitle(selectedIndex, "Untitled*");
+
                         return;
                     }
 
@@ -194,8 +202,10 @@ public class Scriptor extends JFrame implements ActionListener {
                     arraySavedPaths.set(selectedIndex, false);
 
                     if (file.exists() && file.isFile()) {
+                        setTitle("Scriptor - " + file.getPath() + "*");
                         updateTextAreaTabTitle(selectedIndex, file.getName() + "*");
                     } else {
+                        setTitle("Scriptor - " + "Untitled*");
                         updateTextAreaTabTitle(selectedIndex, "Untitled*");
                     }
                 }
@@ -268,7 +278,7 @@ public class Scriptor extends JFrame implements ActionListener {
     }
 
     public void newFile() {
-        tabbedTextAreaPane.addTab("Untitled", newTextAreaForTabTextAreaPane(null));
+        tabbedTextAreaPane.addTab("Untitled", newTextAreaWithScrollPane(null));
         addCloseButtonToTextAreaTab();
 
         arrayPaths.add(null);
@@ -276,6 +286,8 @@ public class Scriptor extends JFrame implements ActionListener {
         config.setPaths(arrayPaths);
 
         tabbedTextAreaPane.setSelectedIndex(tabbedTextAreaPane.getTabCount() - 1);
+
+        setTitle("Scriptor - " + "Untitled");
     }
 
     public void newTerminal() {
@@ -353,7 +365,9 @@ public class Scriptor extends JFrame implements ActionListener {
             }
         }
 
-        tabbedTextAreaPane.addTab(file.getName(), newTextAreaForTabTextAreaPane(path));
+        _switchedTab = true;
+
+        tabbedTextAreaPane.addTab(file.getName(), newTextAreaWithScrollPane(path));
         addCloseButtonToTextAreaTab();
 
         arrayPaths.add(file.getPath());
@@ -378,6 +392,8 @@ public class Scriptor extends JFrame implements ActionListener {
 
         tabbedTextAreaPane.setSelectedIndex(tabbedTextAreaPane.getTabCount() - 1);
         setTitle("Scriptor - " + (path == null ? "Untitled" : path));
+
+        _switchedTab = false;
     }
 
     public void saveFile() {
@@ -417,11 +433,18 @@ public class Scriptor extends JFrame implements ActionListener {
                     writer.write(string);
                     writer.close();
 
+                    boolean wasNullBefore = arrayPaths.get(selectedIndex) == null;
+
                     arrayPaths.set(selectedIndex, selectedFile.getPath());
                     arraySavedPaths.set(selectedIndex, true);
                     config.setPaths(arrayPaths);
 
+                    setTitle("Scriptor - " + selectedFile.getPath());
                     updateTextAreaTabTitle(selectedIndex, selectedFile.getName());
+
+                    if (wasNullBefore) {
+                        filesExplorer.refreshTree();
+                    }
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
@@ -468,6 +491,7 @@ public class Scriptor extends JFrame implements ActionListener {
                     arraySavedPaths.set(index, true);
                     config.setPaths(arrayPaths);
 
+                    setTitle("Scriptor - " + selectedFile.getPath());
                     updateTextAreaTabTitle(index, selectedFile.getName());
                 } catch (IOException exception) {
                     exception.printStackTrace();
@@ -503,9 +527,12 @@ public class Scriptor extends JFrame implements ActionListener {
 
                 config.setPaths(arrayPaths);
 
+                setTitle("Scriptor - " + selectedFile.getPath());
                 updateTextAreaTabTitle(selectedIndex, selectedFile.getName());
 
                 arrayTextAreas.set(selectedIndex, newTextArea(selectedFile.getPath()));
+
+                filesExplorer.refreshTree();
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
@@ -514,34 +541,36 @@ public class Scriptor extends JFrame implements ActionListener {
 
     public void closeTextAreaTabByIndex(int index) {
         if (!arraySavedPaths.get(index)) {
-            int response = showConfirmDialog(null,
-                    arrayPaths.get(index) == null ? "Do you want to save this file before closing the tab?"
-                            : "Do you want to save this file before closing the tab?\n"
-                                    + arrayPaths.get(index),
-                    "Close?",
-                    YES_NO_CANCEL_OPTION);
-            if (response == YES_OPTION) {
-                saveFile();
+            if (!(arrayPaths.get(index) == null && arrayTextAreas.get(index).getText().length() == 0)) {
+                int response = showConfirmDialog(null,
+                        arrayPaths.get(index) == null ? "Do you want to save this file before closing the tab?"
+                                : "Do you want to save this file before closing the tab?\n"
+                                        + arrayPaths.get(index),
+                        "Close?",
+                        YES_NO_CANCEL_OPTION);
+                if (response == YES_OPTION) {
+                    saveFile();
 
-                closeTextAreaTabByIndex(index);
+                    closeTextAreaTabByIndex(index);
 
-                return;
-            } else if (response == NO_OPTION) {
-                tabbedTextAreaPane.removeTabAt(index);
+                    return;
+                } else if (response == NO_OPTION) {
+                    tabbedTextAreaPane.removeTabAt(index);
 
-                arraySavedPaths.remove(index);
-                arrayPaths.remove(index);
-                arrayTextAreas.remove(index);
+                    arraySavedPaths.remove(index);
+                    arrayPaths.remove(index);
+                    arrayTextAreas.remove(index);
 
-                config.setPaths(arrayPaths);
+                    config.setPaths(arrayPaths);
 
-                if (arrayPaths.size() == 0) {
-                    newFile();
+                    if (arrayPaths.size() == 0) {
+                        newFile();
+                    }
+
+                    return;
+                } else {
+                    return;
                 }
-
-                return;
-            } else {
-                return;
             }
         }
 
@@ -653,8 +682,6 @@ public class Scriptor extends JFrame implements ActionListener {
 
         if (arrayPaths.size() == 0) {
             newFile();
-        } else {
-            saveAllTextAreaTabs();
         }
     }
 

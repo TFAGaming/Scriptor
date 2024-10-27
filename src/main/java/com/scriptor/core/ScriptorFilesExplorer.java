@@ -356,7 +356,7 @@ public class ScriptorFilesExplorer extends JPanel {
                 }
 
                 refreshTree();
-            } catch (IOException ioException) {
+            } catch (IOException | InvalidPathException error) {
                 JOptionPane.showMessageDialog(editor,
                         "Error creating " + type.toLowerCase() + ":\n" + selectedDirectory.getPath(),
                         "Error", JOptionPane.ERROR_MESSAGE);
@@ -402,7 +402,7 @@ public class ScriptorFilesExplorer extends JPanel {
                 }
 
                 refreshTree();
-            } catch (IOException ioException) {
+            } catch (IOException | InvalidPathException error) {
                 JOptionPane.showMessageDialog(editor,
                         "Error renaming " + type.toLowerCase() + ":\n" + selectedFile.getPath(),
                         "Error", JOptionPane.ERROR_MESSAGE);
@@ -437,9 +437,7 @@ public class ScriptorFilesExplorer extends JPanel {
                 }
 
                 refreshTree();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-
+            } catch (IOException | InvalidPathException error) {
                 JOptionPane.showMessageDialog(editor,
                         "Error deleting " + type.toLowerCase() + ":\n" + selectedFile.getPath(),
                         "Error", JOptionPane.ERROR_MESSAGE);

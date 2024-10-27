@@ -1,6 +1,10 @@
 package com.scriptor.core;
 
 import javax.swing.*;
+
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -13,6 +17,7 @@ import com.scriptor.Scriptor;
 import com.scriptor.menus.TerminalComponentPopupMenu;
 
 public class ScriptorTerminal extends JPanel {
+    private Scriptor scriptor;
     private String _Previouscommand = "";
     private JTextPane terminalArea;
     private String currentDirectory = "";
@@ -22,6 +27,8 @@ public class ScriptorTerminal extends JPanel {
     private boolean awaitingInput = false;
 
     public ScriptorTerminal(Scriptor scriptor, String dirPath) {
+        this.scriptor = scriptor;
+
         if (dirPath == null) {
             currentDirectory = System.getProperty("user.dir");
         } else {
@@ -42,6 +49,17 @@ public class ScriptorTerminal extends JPanel {
 
         appendPrompt();
 
+        /*
+         * registerKeyboardAction(new ActionListener() {
+         * 
+         * @Override
+         * public void actionPerformed(ActionEvent e) {
+         * closeProcess();
+         * }
+         * }, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK),
+         * JComponent.WHEN_FOCUSED);
+         */
+
         terminalArea.addKeyListener(new KeyAdapter() {
             private StringBuilder currentInput = new StringBuilder();
 
@@ -51,17 +69,22 @@ public class ScriptorTerminal extends JPanel {
 
                 if (keyChar == KeyEvent.VK_ENTER) {
                     String command = currentInput.toString();
-                    appendToTerminal("\n", Color.BLACK);
 
-                    if (awaitingInput && currentProcess != null) {
+                    if (!awaitingInput && isAlive()) {
+                        appendToTerminal("\n", Color.BLACK);
+
                         try {
                             processWriter.write(command + "\n");
                             processWriter.flush();
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
-                    } else {
+                    } else if (!awaitingInput && !isAlive()) {
+                        appendToTerminal("\n", Color.BLACK);
+
                         executeCommand(command);
+                    } else {
+                        return;
                     }
 
                     currentInput.setLength(0);
@@ -86,7 +109,6 @@ public class ScriptorTerminal extends JPanel {
             }
         });
 
-        // Add Focus Listener to show/hide caret
         terminalArea.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -133,7 +155,6 @@ public class ScriptorTerminal extends JPanel {
             }
         });
 
-        // Initially hide the caret
         terminalArea.getCaret().setVisible(false);
     }
 
@@ -165,7 +186,7 @@ public class ScriptorTerminal extends JPanel {
 
                 processOutputThread = new Thread(() -> {
                     try (BufferedReader processReader = new BufferedReader(
-                            new InputStreamReader(currentProcess.getInputStream()))) {   
+                            new InputStreamReader(currentProcess.getInputStream()))) {
                         int character;
                         StringBuilder buffer = new StringBuilder();
 
@@ -189,12 +210,14 @@ public class ScriptorTerminal extends JPanel {
                         ex.printStackTrace();
                     }
                 });
+
                 processOutputThread.start();
 
                 new Thread(() -> {
                     try {
                         currentProcess.waitFor();
                         SwingUtilities.invokeLater(() -> {
+                            appendToTerminal("\n", Color.BLACK);
                             appendPrompt();
                         });
                     } catch (InterruptedException e) {
@@ -265,14 +288,22 @@ public class ScriptorTerminal extends JPanel {
     }
 
     public void closeProcess() {
-        if (currentProcess != null) {
+        if (currentProcess != null && currentProcess.isAlive()) {
             currentProcess.destroy();
             currentProcess = null;
             awaitingInput = false;
+
+            appendPrompt();
         }
     }
 
     public void restartProcess() {
+        if (_Previouscommand.length() == 0) {
+            showMessageDialog(scriptor, "There are no previous commands for this terminal.", "No Commands History", WARNING_MESSAGE);
+
+            return;
+        }
+
         closeProcess();
 
         appendToTerminal(_Previouscommand + "\n", Color.BLACK);
