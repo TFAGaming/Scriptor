@@ -1,0 +1,9 @@
+.vscode/
+target/
+src/test/
+config.json
+launch4j.log
+scriptor.exe
+scriptor.jar
+scriptor.log
+whatsnew.txt
