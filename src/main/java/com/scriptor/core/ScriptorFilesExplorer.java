@@ -35,8 +35,6 @@ public class ScriptorFilesExplorer extends JPanel {
     private Thread thread;
     private String rootPath = "";
     private int filesCounter = 0;
-    private JPopupMenu folderContextMenu;
-    private JPopupMenu fileContextMenu;
 
     public ScriptorFilesExplorer(Scriptor editor, String rootPath) {
         setLayout(new BorderLayout());
@@ -56,9 +54,6 @@ public class ScriptorFilesExplorer extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(fileTree);
         add(scrollPane, BorderLayout.CENTER);
-
-        createFolderContextMenu();
-        createFileContextMenu();
 
         fileTree.addMouseListener(new RightClickMouseListener());
         fileTree.addMouseListener(new LeftClickMouseListener());
@@ -86,6 +81,43 @@ public class ScriptorFilesExplorer extends JPanel {
         populateTreeWithThread(rootNode, newRoot);
 
         treeModel.reload();
+    }
+
+    public void addPath(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            return;
+        }
+
+        DefaultMutableTreeNode parentNode = findParentNode(file.getParentFile());
+        if (parentNode == null) {
+            return;
+        }
+
+        DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(new FileNode(file));
+        treeModel.insertNodeInto(newNode, parentNode, parentNode.getChildCount());
+        fileTree.expandPath(new TreePath(parentNode.getPath())); // Expand to show the new node
+    }
+
+    public void renamePath(String oldPath, String newPath) {
+        DefaultMutableTreeNode nodeToRename = findNodeByPath(oldPath);
+        if (nodeToRename == null) {
+            return;
+        }
+
+        FileNode fileNode = (FileNode) nodeToRename.getUserObject();
+        File newFile = new File(newPath);
+
+        fileNode.setFile(newFile);
+        treeModel.nodeChanged(nodeToRename);
+    }
+
+    public void removePath(String path) {
+        DefaultMutableTreeNode nodeToRemove = findNodeByPath(path);
+
+        if (nodeToRemove != null) {
+            treeModel.removeNodeFromParent(nodeToRemove);
+        }
     }
 
     private void populateTreeWithThread(DefaultMutableTreeNode rootNode, File fileRoot) {
@@ -148,7 +180,33 @@ public class ScriptorFilesExplorer extends JPanel {
         }
     }
 
-    public void countFilesAndDirectories(Path path) {
+    private DefaultMutableTreeNode findNodeByPath(String path) {
+        return findNodeRecursively(rootNode, path);
+    }
+
+    private DefaultMutableTreeNode findNodeRecursively(DefaultMutableTreeNode currentNode, String path) {
+        FileNode fileNode = (FileNode) currentNode.getUserObject();
+
+        if (fileNode.getFile().getPath().equals(path)) {
+            return currentNode;
+        }
+
+        for (int i = 0; i < currentNode.getChildCount(); i++) {
+            DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) currentNode.getChildAt(i);
+            DefaultMutableTreeNode result = findNodeRecursively(childNode, path);
+
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    private DefaultMutableTreeNode findParentNode(File parentFile) {
+        return findNodeByPath(parentFile.getPath());
+    }
+
+    private void countFilesAndDirectories(Path path) {
         filesCounter = 0;
 
         try {
@@ -179,6 +237,10 @@ public class ScriptorFilesExplorer extends JPanel {
 
         public File getFile() {
             return file;
+        }
+
+        public void setFile(File file) {
+            this.file = file;
         }
 
         @Override
@@ -233,9 +295,9 @@ public class ScriptorFilesExplorer extends JPanel {
                     File file = fileNode.getFile();
 
                     if (file.isDirectory()) {
-                        folderContextMenu.show(fileTree, event.getX(), event.getY());
+                        createFolderContextMenu(file.getPath()).show(fileTree, event.getX(), event.getY());
                     } else if (file.isFile()) {
-                        fileContextMenu.show(fileTree, event.getX(), event.getY());
+                        createFileContextMenu().show(fileTree, event.getX(), event.getY());
                     }
                 }
             }
@@ -262,10 +324,10 @@ public class ScriptorFilesExplorer extends JPanel {
         }
     }
 
-    private void createFolderContextMenu() {
-        folderContextMenu = new JPopupMenu();
+    private JPopupMenu createFolderContextMenu(String path) {
+        JPopupMenu folderContextMenu = new JPopupMenu();
 
-        JMenuItem createFileItem = new JMenuItem("Create File");
+        JMenuItem createFileItem = new JMenuItem("New File");
         createFileItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -273,7 +335,7 @@ public class ScriptorFilesExplorer extends JPanel {
             }
         });
 
-        JMenuItem createFolderItem = new JMenuItem("Create Folder");
+        JMenuItem createFolderItem = new JMenuItem("New Folder");
         createFolderItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -282,6 +344,7 @@ public class ScriptorFilesExplorer extends JPanel {
         });
 
         JMenuItem renameItem = new JMenuItem("Rename...");
+
         renameItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -297,15 +360,22 @@ public class ScriptorFilesExplorer extends JPanel {
             }
         });
 
+        if (path.equalsIgnoreCase(rootPath)) {
+            renameItem.setEnabled(false);
+            deleteItem.setEnabled(false);
+        }
+
         folderContextMenu.add(createFileItem);
         folderContextMenu.add(createFolderItem);
         folderContextMenu.addSeparator();
         folderContextMenu.add(renameItem);
         folderContextMenu.add(deleteItem);
+
+        return folderContextMenu;
     }
 
-    private void createFileContextMenu() {
-        fileContextMenu = new JPopupMenu();
+    private JPopupMenu createFileContextMenu() {
+        JPopupMenu fileContextMenu = new JPopupMenu();
 
         JMenuItem renameItem = new JMenuItem("Rename...");
         renameItem.addActionListener(new ActionListener() {
@@ -325,6 +395,8 @@ public class ScriptorFilesExplorer extends JPanel {
 
         fileContextMenu.add(renameItem);
         fileContextMenu.add(deleteItem);
+
+        return fileContextMenu;
     }
 
     private void createNewItem(boolean isFolder) {
@@ -342,8 +414,8 @@ public class ScriptorFilesExplorer extends JPanel {
 
         String type = !isFolder ? "File" : "Folder";
 
-        String newName = JOptionPane.showInputDialog(editor, "Enter " + type + " Name:",
-                "Create " + type, JOptionPane.PLAIN_MESSAGE);
+        String newName = JOptionPane.showInputDialog(editor, "Enter " + type.toLowerCase() + " name:",
+                "New " + type, JOptionPane.PLAIN_MESSAGE);
 
         if (newName != null && !newName.trim().isEmpty()) {
             try {
@@ -355,7 +427,7 @@ public class ScriptorFilesExplorer extends JPanel {
                     Files.createFile(newItem.toPath());
                 }
 
-                refreshTree();
+                addPath(newItem.getPath());
             } catch (IOException | InvalidPathException error) {
                 JOptionPane.showMessageDialog(editor,
                         "Error creating " + type.toLowerCase() + ":\n" + selectedDirectory.getPath(),
@@ -401,7 +473,7 @@ public class ScriptorFilesExplorer extends JPanel {
                     throw new IOException();
                 }
 
-                refreshTree();
+                renamePath(selectedFile.getPath(), newFile.getPath());
             } catch (IOException | InvalidPathException error) {
                 JOptionPane.showMessageDialog(editor,
                         "Error renaming " + type.toLowerCase() + ":\n" + selectedFile.getPath(),
@@ -436,7 +508,7 @@ public class ScriptorFilesExplorer extends JPanel {
                     FileUtils.delete(selectedFile);
                 }
 
-                refreshTree();
+                removePath(selectedFile.getPath());
             } catch (IOException | InvalidPathException error) {
                 JOptionPane.showMessageDialog(editor,
                         "Error deleting " + type.toLowerCase() + ":\n" + selectedFile.getPath(),

@@ -60,7 +60,7 @@ public class ScriptorConfig {
     public int getZoom() {
         return structure.getZoom();
     }
-
+    
     public void setShowWhatsNewOnStartUp(boolean value) {
         structure.setShowWhatsNewOnStartUp(value);
 
@@ -112,11 +112,11 @@ public class ScriptorConfig {
     }
 
     public void setDefault() throws IOException {
-        structure.setShowWhatsNewOnStartUp(false);
+        structure.setShowWhatsNewOnStartUp(true);
         structure.setDirectoryPath(null);
         structure.setPaths(new ArrayList<String>());
         structure.setExtended(false);
-        structure.setZoom(14);
+        structure.setZoom(12);
 
         save();
     }

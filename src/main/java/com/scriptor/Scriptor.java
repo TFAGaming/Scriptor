@@ -1,7 +1,9 @@
 package com.scriptor;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
+import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -14,6 +16,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.awt.event.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import static javax.swing.JOptionPane.*;
 
@@ -27,12 +30,14 @@ public class Scriptor extends JFrame implements ActionListener {
     public JTabbedPane tabbedTextAreaPane;
     public JTabbedPane tabbedTerminalPane;
     public ScriptorFilesExplorer filesExplorer;
+    public JLabel bottomLabel;
     public JFileChooser fileChooser;
     public List<String> arrayPaths = new ArrayList<String>();
     public List<Boolean> arraySavedPaths = new ArrayList<Boolean>();
     public List<RSyntaxTextArea> arrayTextAreas = new ArrayList<RSyntaxTextArea>();
     public List<ScriptorTerminal> arrayTerminals = new ArrayList<ScriptorTerminal>();
     public boolean _switchedTab = false;
+    public int _terminalsTabsCount = 0;
 
     public Scriptor() {
         logger.clearAll();
@@ -77,6 +82,11 @@ public class Scriptor extends JFrame implements ActionListener {
 
         add(secondarySplitPane);
 
+        bottomLabel = new JLabel("Getting ready...");
+        bottomLabel.setBorder(new EmptyBorder(5, 5, 5, 0));
+
+        add(bottomLabel, BorderLayout.SOUTH);
+
         if (config.getExtended()) {
             setExtendedState(MAXIMIZED_BOTH);
         }
@@ -111,8 +121,19 @@ public class Scriptor extends JFrame implements ActionListener {
                 if (selectedIndex >= 0 && arrayPaths.size() > 0) {
                     String path = arrayPaths.get(selectedIndex);
 
+                    System.out.println("OK");
+
                     setTitle("Scriptor - " + (path == null ? "Untitled" : path));
                 }
+            }
+        });
+
+        updateBottomLabel();
+
+        tabbedTextAreaPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                updateBottomLabel();
             }
         });
     }
@@ -160,7 +181,11 @@ public class Scriptor extends JFrame implements ActionListener {
             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
         }
 
+        textArea.setBracketMatchingEnabled(rootPaneCheckingEnabled);
         textArea.setAnimateBracketMatching(false);
+        textArea.setAutoIndentEnabled(true);
+        textArea.setDragEnabled(true);
+        textArea.setTabSize(4);
         textArea.setCodeFoldingEnabled(true);
 
         Font font = textArea.getFont();
@@ -186,6 +211,8 @@ public class Scriptor extends JFrame implements ActionListener {
                 int selectedIndex = tabbedTextAreaPane.getSelectedIndex();
 
                 if (selectedIndex != -1) {
+                    updateBottomLabel();
+
                     if (_switchedTab) {
                         return;
                     }
@@ -212,6 +239,30 @@ public class Scriptor extends JFrame implements ActionListener {
             }
         });
 
+        textArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                updateBottomLabel();
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                updateBottomLabel();
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                updateBottomLabel();
+            }
+        });
+
+        textArea.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                updateBottomLabel();
+            }
+        });
+
         arrayTextAreas.add(textArea);
 
         return scrollTextAreaPane;
@@ -235,6 +286,9 @@ public class Scriptor extends JFrame implements ActionListener {
         }
 
         textArea.setAnimateBracketMatching(false);
+        textArea.setAutoIndentEnabled(true);
+        textArea.setDragEnabled(true);
+        textArea.setTabSize(4);
         textArea.setCodeFoldingEnabled(true);
 
         Font font = textArea.getFont();
@@ -257,6 +311,8 @@ public class Scriptor extends JFrame implements ActionListener {
 
                 textArea.setFont(font.deriveFont(size));
                 config.setZoom(Math.round(size));
+
+                updateBottomLabel();
             }
         }
     }
@@ -273,6 +329,8 @@ public class Scriptor extends JFrame implements ActionListener {
 
                 textArea.setFont(font.deriveFont(size));
                 config.setZoom(Math.round(size));
+
+                updateBottomLabel();
             }
         }
     }
@@ -293,9 +351,11 @@ public class Scriptor extends JFrame implements ActionListener {
     public void newTerminal() {
         ScriptorTerminal terminal = newTerminalForTerminalPane();
 
+        _terminalsTabsCount++;
+
         arrayTerminals.add(terminal);
 
-        tabbedTerminalPane.addTab("Terminal #" + arrayTerminals.size(), terminal);
+        tabbedTerminalPane.addTab("Terminal #" + _terminalsTabsCount, terminal);
         addCloseButtonToTerminalTab();
 
         tabbedTerminalPane.setSelectedIndex(tabbedTerminalPane.getTabCount() - 1);
@@ -376,7 +436,8 @@ public class Scriptor extends JFrame implements ActionListener {
         config.setPaths(arrayPaths);
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             String line;
 
             RSyntaxTextArea textArea = arrayTextAreas.get(arrayTextAreas.size() - 1);
@@ -394,6 +455,10 @@ public class Scriptor extends JFrame implements ActionListener {
         setTitle("Scriptor - " + (path == null ? "Untitled" : path));
 
         _switchedTab = false;
+
+        if (arrayPaths.size() == 2 && arrayPaths.get(0) == null && arrayTextAreas.get(0).getText().length() == 0) {
+            closeTextAreaTabByIndex(0);
+        }
     }
 
     public void saveFile() {
@@ -429,7 +494,8 @@ public class Scriptor extends JFrame implements ActionListener {
 
             if (selectedFile != null) {
                 try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile));
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(new FileOutputStream(selectedFile), StandardCharsets.UTF_8));
                     writer.write(string);
                     writer.close();
 
@@ -483,7 +549,8 @@ public class Scriptor extends JFrame implements ActionListener {
 
             if (selectedFile != null) {
                 try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile));
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(new FileOutputStream(selectedFile), StandardCharsets.UTF_8));
                     writer.write(string);
                     writer.close();
 
@@ -518,7 +585,8 @@ public class Scriptor extends JFrame implements ActionListener {
             }
 
             try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile));
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(new FileOutputStream(selectedFile), StandardCharsets.UTF_8));
                 writer.write(string);
                 writer.close();
 
@@ -720,11 +788,11 @@ public class Scriptor extends JFrame implements ActionListener {
     public RSyntaxTextArea getCurrentTextArea() {
         int index = tabbedTextAreaPane.getSelectedIndex();
 
-        if (index != 1) {
-            return arrayTextAreas.get(index);
-        } else {
+        if (arrayTextAreas.size() == 0 || index == -1) {
             return null;
         }
+
+        return arrayTextAreas.get(index);
     }
 
     public ScriptorTerminal getCurrentTerminal() {
@@ -735,6 +803,40 @@ public class Scriptor extends JFrame implements ActionListener {
         } else {
             return null;
         }
+    }
+
+    public void updateBottomLabel() {
+        RSyntaxTextArea textArea = getCurrentTextArea();
+
+        if (textArea == null) {
+            return;
+        }
+
+        int caretPosition = textArea.getCaretPosition();
+        int lineNumber = 0;
+        int column = 0;
+
+        try {
+            lineNumber = textArea.getLineOfOffset(caretPosition) + 1;
+            int lineStartOffset = textArea.getLineStartOffset(lineNumber - 1);
+            column = caretPosition - lineStartOffset;
+        } catch (BadLocationException e) {
+        }
+
+        int currentIndex = tabbedTextAreaPane.getSelectedIndex();
+        String language = "Unknown";
+
+        if (currentIndex != 1 && arrayPaths.size() > 0) {
+            String path = arrayPaths.get(currentIndex);
+
+            if (path != null) {
+                String fileExtension = FilenameUtils.getExtension(new File(path).getName());
+                language = Utils.getLanguageByFileExtension(fileExtension);
+            }
+        }
+
+        bottomLabel.setText(language + " | Length: " + textArea.getText().trim().length() + ", Lines: "
+                + textArea.getText().trim().split("\n").length + " | Line: " + lineNumber + ", Column: " + column + " | Zoom: " + config.getZoom() + ", Encoding: UTF-8");
     }
 
     public ImageIcon getIcon(String iconName) {

@@ -11,14 +11,14 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import com.scriptor.Scriptor;
 
 public class ScriptorToolbar extends JToolBar {
-    //private Scriptor scriptor;
+    // private Scriptor scriptor;
 
     public ScriptorToolbar(Scriptor scriptor) {
         setFloatable(false);
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         setBorder(new EmptyBorder(5, 5, 5, 0));
 
-        //this.scriptor = scriptor;
+        // this.scriptor = scriptor;
 
         JButton buttonNewFile = createButton(getIcon("new_file.png"), "New File");
         buttonNewFile.addActionListener(new ActionListener() {
@@ -162,8 +162,10 @@ public class ScriptorToolbar extends JToolBar {
             public void actionPerformed(ActionEvent e) {
                 RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
 
+                //System.out.println(textArea);
+
                 if (textArea != null) {
-                    new ScriptorSearchAndReplace(scriptor, textArea);
+                    new ScriptorFindAndReplace(scriptor, textArea);
                 }
             }
         });
@@ -220,11 +222,13 @@ public class ScriptorToolbar extends JToolBar {
         buttonSettings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //
+                ScriptorConfigFrame configFrame = new ScriptorConfigFrame(scriptor);
+
+                configFrame.setVisible(true);
             }
         });
 
-        JButton buttonHelp = createButton(getIcon("help.gif"), "Help?");
+        JButton buttonHelp = createButton(getIcon("help.gif"), "About");
         buttonHelp.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

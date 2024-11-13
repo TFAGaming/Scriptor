@@ -299,6 +299,7 @@ public class Utils {
                         return "ejs.svg";
                     case "png":
                     case "jpeg":
+                    case "jpg":
                     case "gif":
                     case "tiff":
                         return "image.svg";
@@ -446,6 +447,8 @@ public class Utils {
             case "yml":
             case "yaml":
                 return "YAML";
+            case "txt":
+                return "Text File";
             default:
                 return "Unknown";
         }
@@ -454,86 +457,86 @@ public class Utils {
     public static List<String> getSupportedAndEditableExtensions() {
         List<String> extensions = new ArrayList<String>();
         String[] supportedExtensions = {
-            "as",
-            "asm",
-            "s",
-            "inc",
-            "c",
-            "clj",
-            "cljs",
-            "cljc",
-            "cpp",
-            "cs",
-            "css",
-            "d",
-            "dart",
-            "f90",
-            "for",
-            "f",
-            "go",
-            "groovy",
-            "htm",
-            "html",
-            "ejs",
-            "ini",
-            "properties",
-            "prop",
-            "config",
-            "java",
-            "js",
-            "mjs",
-            "cjs",
-            "json",
-            "jsonc",
-            "kl",
-            "lex",
-            "less",
-            "lisp",
-            "lsp",
-            "cl",
-            "lua",
-            "md",
-            "markdown",
-            "mxml",
-            "plx",
-            "pls",
-            "pl",
-            "pm",
-            "xs",
-            "t",
-            "pod",
-            "psgi",
-            "php",
-            "phar",
-            "pht",
-            "phtml",
-            "phs",
-            "py",
-            "pyw",
-            "rb",
-            "ru",
-            "rs",
-            "rlib",
-            "sas",
-            "scala",
-            "sc",
-            "ts",
-            "tsx",
-            "mts",
-            "cts",
-            "sh",
-            "bat",
-            "vb",
-            "xml",
-            "yml",
-            "yaml", 
-            "log",
-            "txt",
-            "env",
-            "gitignore",
-            "git",
-            "npmignore",
-            "yarn"
+                "as",
+                "asm",
+                "s",
+                "inc",
+                "c",
+                "clj",
+                "cljs",
+                "cljc",
+                "cpp",
+                "cs",
+                "css",
+                "d",
+                "dart",
+                "f90",
+                "for",
+                "f",
+                "go",
+                "groovy",
+                "htm",
+                "html",
+                "ejs",
+                "ini",
+                "properties",
+                "prop",
+                "config",
+                "java",
+                "js",
+                "mjs",
+                "cjs",
+                "json",
+                "jsonc",
+                "kl",
+                "lex",
+                "less",
+                "lisp",
+                "lsp",
+                "cl",
+                "lua",
+                "md",
+                "markdown",
+                "mxml",
+                "plx",
+                "pls",
+                "pl",
+                "pm",
+                "xs",
+                "t",
+                "pod",
+                "psgi",
+                "php",
+                "phar",
+                "pht",
+                "phtml",
+                "phs",
+                "py",
+                "pyw",
+                "rb",
+                "ru",
+                "rs",
+                "rlib",
+                "sas",
+                "scala",
+                "sc",
+                "ts",
+                "tsx",
+                "mts",
+                "cts",
+                "sh",
+                "bat",
+                "vb",
+                "xml",
+                "yml",
+                "yaml",
+                "log",
+                "txt",
+                "env",
+                "gitignore",
+                "git",
+                "npmignore",
+                "yarn"
         };
 
         for (String extension : supportedExtensions) {
@@ -546,27 +549,43 @@ public class Utils {
     public static void setTextSyntaxHighlightingColors(RSyntaxTextArea textArea) {
         SyntaxScheme scheme = textArea.getSyntaxScheme();
 
-        scheme.getStyle(Token.COMMENT_MULTILINE).foreground = Color.GRAY;
-        scheme.getStyle(Token.COMMENT_EOL).foreground = Color.GRAY;
-        scheme.getStyle(Token.RESERVED_WORD).foreground = Color.BLUE;
+        scheme.getStyle(Token.ANNOTATION).foreground = Color.decode("#008000");
+        scheme.getStyle(Token.RESERVED_WORD).foreground = Color.decode("#0037a4");
+        scheme.getStyle(Token.RESERVED_WORD_2).foreground = Color.decode("#0037a4");
 
         scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = Color.decode("#008000");
         scheme.getStyle(Token.LITERAL_CHAR).foreground = Color.decode("#008000");
         scheme.getStyle(Token.LITERAL_BACKQUOTE).foreground = Color.decode("#008000");
 
-        scheme.getStyle(Token.LITERAL_BOOLEAN).foreground = Color.decode("#af00db");
-        scheme.getStyle(Token.REGEX).foreground = Color.decode("#e32020");
+        scheme.getStyle(Token.LITERAL_BOOLEAN).foreground = Color.decode("#1750ea");
 
-        scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = Color.decode("#979412");
-        scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = Color.decode("#979412");
-        scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = Color.decode("#979412");
+        scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = Color.BLUE;
+        scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = Color.BLUE;
+        scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = Color.BLUE;
+
+        scheme.getStyle(Token.REGEX).foreground = Color.decode("#cb1823");
+
+        scheme.getStyle(Token.COMMENT_MULTILINE).foreground = Color.GRAY;
+        scheme.getStyle(Token.COMMENT_DOCUMENTATION).foreground = Color.GRAY;
+        scheme.getStyle(Token.COMMENT_EOL).foreground = Color.GRAY;
 
         scheme.getStyle(Token.SEPARATOR).foreground = Color.BLACK;
         scheme.getStyle(Token.OPERATOR).foreground = Color.BLACK;
         scheme.getStyle(Token.IDENTIFIER).foreground = Color.BLACK;
-        scheme.getStyle(Token.VARIABLE).foreground = Color.decode("#e8541e");
+        scheme.getStyle(Token.VARIABLE).foreground = Color.decode("#c02d2e");
         scheme.getStyle(Token.FUNCTION).foreground = Color.RED;
-        scheme.getStyle(Token.PREPROCESSOR).foreground = Color.BLUE;
+        scheme.getStyle(Token.PREPROCESSOR).foreground = Color.decode("#0037a4");
+        
+        // HTML / XML related
+        scheme.getStyle(Token.MARKUP_CDATA).foreground = Color.decode("#0037a4");
+        scheme.getStyle(Token.MARKUP_COMMENT).foreground = Color.GRAY;
+        scheme.getStyle(Token.MARKUP_DTD).foreground = Color.decode("#bc8c2b");
+        //scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = Color.BLUE;
+        //scheme.getStyle(Token.MARKUP_PROCESSING_INSTRUCTION).foreground = Color.BLUE;
+        scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE).foreground = Color.decode("#64278f");
+        scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE_VALUE).foreground = Color.decode("#008000");
+        scheme.getStyle(Token.MARKUP_TAG_DELIMITER).foreground = Color.decode("#1c1a5d");
+        scheme.getStyle(Token.MARKUP_TAG_NAME).foreground = Color.decode("#1c1a5d");
 
         textArea.setSyntaxScheme(scheme);
     }

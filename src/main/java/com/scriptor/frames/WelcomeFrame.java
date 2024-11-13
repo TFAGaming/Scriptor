@@ -22,11 +22,9 @@ public class WelcomeFrame extends JFrame {
         setIconImage(scriptor.getIcon("scriptor_icon.png").getImage());
 
         JLabel label = new JLabel("Version: " + Utils.getVersion());
-        label.setBorder(new EmptyBorder(0, 10, 10, 10));
 
         JTextArea textArea = new JTextArea(10, 20);
         textArea.setEditable(false);
-        textArea.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         try (BufferedReader br = new BufferedReader(new FileReader("whatsnew.txt"))) {
             try {
@@ -50,11 +48,9 @@ public class WelcomeFrame extends JFrame {
         }
 
         JCheckBox checkBox = new JCheckBox("Never show this again.");
-        checkBox.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JButton okButton = new JButton("OK");
-        okButton.setBorder(new EmptyBorder(0, 10, 0, 10));
-        okButton.setPreferredSize(new Dimension(80, 3));
+        okButton.setPreferredSize(new Dimension(80, 25));
 
         okButton.addActionListener(new ActionListener() {
             @Override

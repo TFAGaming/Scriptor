@@ -15,7 +15,7 @@ import java.awt.event.ItemListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ScriptorSearchAndReplace extends JFrame {
+public class ScriptorFindAndReplace extends JFrame {
     private RSyntaxTextArea textArea;
     private JTextField searchField;
     private JTextField replaceField;
@@ -29,8 +29,8 @@ public class ScriptorSearchAndReplace extends JFrame {
     private int currentMatchIndex = -1;
     private java.util.List<Integer> matchPositions;
 
-    public ScriptorSearchAndReplace(Scriptor scriptor, RSyntaxTextArea textArea) {
-        setTitle("Search & Replace");
+    public ScriptorFindAndReplace(Scriptor scriptor, RSyntaxTextArea textArea) {
+        setTitle("Find & Replace");
         setSize(400, 200);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -42,7 +42,6 @@ public class ScriptorSearchAndReplace extends JFrame {
 
         this.textArea = textArea;
 
-        // Search panel
         JPanel searchPanel = new JPanel();
         searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         searchPanel.setBorder(new EmptyBorder(10, 10, 10, 0));
@@ -52,7 +51,6 @@ public class ScriptorSearchAndReplace extends JFrame {
         searchPanel.add(new JLabel("Search: "));
         searchPanel.add(searchField, BorderLayout.WEST);
 
-        // Options panel
         JPanel optionsPanel = new JPanel();
         optionsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         optionsPanel.setBorder(new EmptyBorder(5, 5, 10, 0));
@@ -80,9 +78,6 @@ public class ScriptorSearchAndReplace extends JFrame {
 
                 replaceField.setEnabled(isEnabled);
                 replaceButton.setEnabled(isEnabled);
-
-                //upButton.setEnabled(!isEnabled);
-                //downButton.setEnabled(!isEnabled);
             }
         });
 
@@ -92,7 +87,6 @@ public class ScriptorSearchAndReplace extends JFrame {
         replacePanel.add(replaceCheck);
         replacePanel.add(replaceField, BorderLayout.WEST);
 
-        // Remaining
         add(searchPanel, BorderLayout.NORTH);
 
         JPanel secondaryPanel = new JPanel();
