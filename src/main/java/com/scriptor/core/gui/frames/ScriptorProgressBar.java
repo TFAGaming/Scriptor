@@ -1,4 +1,4 @@
-package com.scriptor.frames;
+package com.scriptor.core.gui.frames;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -7,15 +7,16 @@ import com.scriptor.Scriptor;
 
 import java.awt.*;
 
-public class ProgressBarFrame extends JFrame {
+public class ScriptorProgressBar extends JFrame {
     private Scriptor scriptor;
+    
     private JLabel label;
     private JProgressBar progressBar;
     private String text;
     private int max;
     private int counter = 0;
 
-    public ProgressBarFrame(Scriptor scriptor, String title, String text, int max) {
+    public ScriptorProgressBar(Scriptor scriptor, String title, String text, int max) {
         this.scriptor = scriptor;
 
         setTitle(title);

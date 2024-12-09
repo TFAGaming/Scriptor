@@ -1,4 +1,4 @@
-package com.scriptor.config;
+package com.scriptor.core.config;
 
 import com.fasterxml.jackson.core.exc.*;
 import com.fasterxml.jackson.databind.*;
@@ -7,7 +7,7 @@ import java.util.*;
 import java.io.*;
 
 public class ScriptorConfig {
-    private ConfigStructure structure;
+    private ScriptorConfigStructure structure;
     private String filePath;
 
     public ScriptorConfig(String filePath) {
@@ -15,7 +15,7 @@ public class ScriptorConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         
         try {
-            structure = objectMapper.readValue(new File(filePath), ConfigStructure.class);
+            structure = objectMapper.readValue(new File(filePath), ScriptorConfigStructure.class);
         } catch (FileNotFoundException e) {
             File file = new File("config.json");
 
@@ -26,7 +26,7 @@ public class ScriptorConfig {
                 writer.write("{}");
                 writer.close();
 
-                structure = objectMapper.readValue(new File(filePath), ConfigStructure.class);
+                structure = objectMapper.readValue(new File(filePath), ScriptorConfigStructure.class);
 
                 setDefault();
             } catch (IOException e1) {

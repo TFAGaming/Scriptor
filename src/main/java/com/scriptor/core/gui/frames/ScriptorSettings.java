@@ -1,4 +1,4 @@
-package com.scriptor.core.gui;
+package com.scriptor.core.gui.frames;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -7,16 +7,17 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import com.scriptor.Scriptor;
+import com.scriptor.core.gui.panels.ScriptorPluginsPanel;
 import com.scriptor.core.plugins.ScriptorPlugin;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-public class ScriptorConfigFrame extends JFrame {
+public class ScriptorSettings extends JFrame {
     private Scriptor scriptor;
 
-    public ScriptorConfigFrame(Scriptor scriptor) {
+    public ScriptorSettings(Scriptor scriptor) {
         this.scriptor = scriptor;
 
         setTitle("Scriptor Configuration");
@@ -172,7 +173,7 @@ public class ScriptorConfigFrame extends JFrame {
         this.scriptor.pluginsHandler.loadPlugins();
         List<ScriptorPlugin> plugins = this.scriptor.pluginsHandler.getPlugins();
 
-        ScriptorPluginsUI panel = new ScriptorPluginsUI(this.scriptor, plugins);
+        ScriptorPluginsPanel panel = new ScriptorPluginsPanel(this.scriptor, plugins);
 
         return panel;
     }

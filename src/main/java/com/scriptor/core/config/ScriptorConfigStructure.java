@@ -1,8 +1,8 @@
-package com.scriptor.config;
+package com.scriptor.core.config;
 
 import java.util.List;
 
-public class ConfigStructure {
+public class ScriptorConfigStructure {
     private boolean showWhatsNewOnStartUp;
     private String directoryPath;
     private List<String> paths;

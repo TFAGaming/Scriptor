@@ -1,20 +1,19 @@
-package com.scriptor.frames;
+package com.scriptor.core.gui.frames;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import com.scriptor.Scriptor;
-import com.scriptor.Utils;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 
-public class ScriptorWelcomeFrame extends JFrame {
+public class ScriptorWhatsNew extends JFrame {
     private Scriptor scriptor;
 
-    public ScriptorWelcomeFrame(Scriptor scriptor) {
+    public ScriptorWhatsNew(Scriptor scriptor) {
         this.scriptor = scriptor;
 
         setTitle("What\'s new?");
@@ -25,7 +24,7 @@ public class ScriptorWelcomeFrame extends JFrame {
 
         setIconImage(this.scriptor.getIcon("scriptor_icon.png").getImage());
 
-        JLabel label = new JLabel("Version: " + Utils.getVersion());
+        JLabel label = new JLabel("Version: " + Scriptor.getVersion());
 
         JTextArea textArea = new JTextArea(10, 20);
         textArea.setEditable(false);

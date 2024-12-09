@@ -1,4 +1,4 @@
-package com.scriptor.core.gui;
+package com.scriptor.core.gui.frames;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

@@ -1,4 +1,4 @@
-package com.scriptor.core.gui;
+package com.scriptor.core.gui.toolbar;
 
 import static javax.swing.JOptionPane.*;
 
@@ -12,13 +12,11 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import com.scriptor.Scriptor;
 import com.scriptor.Utils;
+import com.scriptor.core.gui.frames.ScriptorSettings;
+import com.scriptor.core.gui.frames.ScriptorFindAndReplace;
 
 public class ScriptorToolbar extends JToolBar {
-    // private Scriptor scriptor;
-
     public ScriptorToolbar(Scriptor scriptor) {
-        // this.scriptor = scriptor;
-
         setFloatable(false);
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         setBorder(new EmptyBorder(5, 5, 5, 0));
@@ -27,7 +25,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonNewFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.newFile();
+                scriptor.textAreaTabManager.newFile();
             }
         });
 
@@ -35,7 +33,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonFolder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.openFolder();
+                scriptor.textAreaTabManager.openFolder();
             }
         });
 
@@ -43,7 +41,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.saveFile();
+                scriptor.textAreaTabManager.saveFile();
             }
         });
 
@@ -51,30 +49,9 @@ public class ScriptorToolbar extends JToolBar {
         buttonSaveAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.saveAllTextAreaTabs();
+                scriptor.textAreaTabManager.saveAllTabs();
             }
         });
-
-        /*JButton buttonCloseTab = createButton(getIcon("tabs_close.png"), "Close Tab");
-        buttonCloseTab.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = scriptor.tabbedTextAreaPane.getSelectedIndex();
-
-                if (index != 1) {
-                    scriptor.closeTextAreaTabByIndex(index);
-                }
-            }
-        });
-
-        JButton buttonCloseAllTab = createButton(getIcon("tabs_close_all.png"), "Close All Tabs");
-        buttonCloseAllTab.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                scriptor.closeAllTextAreaTabs();
-            }
-        });
-        */
 
         JButton buttonTreeRefresh = createButton(getIcon("tree_explorer.gif"), "Refresh Files Explorer");
         buttonTreeRefresh.addActionListener(new ActionListener() {
@@ -88,7 +65,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonCopy.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 if (textArea != null) {
                     textArea.copy();
@@ -100,7 +77,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonPaste.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 if (textArea != null) {
                     textArea.paste();
@@ -112,7 +89,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonCut.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 if (textArea != null) {
                     textArea.cut();
@@ -124,7 +101,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonUndo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 if (textArea != null && textArea.canUndo()) {
                     textArea.undoLastAction();
@@ -136,7 +113,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonRedo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 if (textArea != null && textArea.canRedo()) {
                     textArea.redoLastAction();
@@ -148,7 +125,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonZoomIn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.zoomIn();
+                scriptor.textAreaTabManager.zoomIn();
             }
         });
 
@@ -156,7 +133,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonZoomOut.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.zoomOut();
+                scriptor.textAreaTabManager.zoomOut();
             }
         });
 
@@ -164,9 +141,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonSearchText.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
-
-                //System.out.println(textArea);
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 if (textArea != null) {
                     new ScriptorFindAndReplace(scriptor, textArea);
@@ -178,7 +153,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonSettings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ScriptorConfigFrame configFrame = new ScriptorConfigFrame(scriptor);
+                ScriptorSettings configFrame = new ScriptorSettings(scriptor);
 
                 configFrame.setVisible(true);
             }
@@ -199,10 +174,6 @@ public class ScriptorToolbar extends JToolBar {
         add(buttonSave);
         add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonSaveAll);
-        //add(Box.createRigidArea(new Dimension(4, 0)));
-        //add(buttonCloseTab);
-        //add(Box.createRigidArea(new Dimension(4, 0)));
-        //add(buttonCloseAllTab);
         add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonTreeRefresh);
 

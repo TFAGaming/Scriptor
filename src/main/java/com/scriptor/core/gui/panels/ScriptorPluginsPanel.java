@@ -1,4 +1,4 @@
-package com.scriptor.core.gui;
+package com.scriptor.core.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -21,10 +21,10 @@ import javax.swing.SwingConstants;
 import com.scriptor.Scriptor;
 import com.scriptor.core.plugins.ScriptorPlugin;
 
-public class ScriptorPluginsUI extends JPanel {
+public class ScriptorPluginsPanel extends JPanel {
     private Scriptor scriptor;
     
-    public ScriptorPluginsUI(Scriptor scriptor, List<ScriptorPlugin> plugins) {
+    public ScriptorPluginsPanel(Scriptor scriptor, List<ScriptorPlugin> plugins) {
         this.scriptor = scriptor;
 
         setLayout(new BorderLayout());
@@ -77,7 +77,7 @@ public class ScriptorPluginsUI extends JPanel {
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.openFileFromPath(plugin.getFile().getPath().toString());
+                scriptor.textAreaTabManager.openFileFromPath(plugin.getFile().getPath().toString());
             }
         });
         secondaryPanel.add(editButton, BorderLayout.WEST);

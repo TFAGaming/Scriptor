@@ -1,4 +1,4 @@
-package com.scriptor.core.gui;
+package com.scriptor.core.gui.panels;
 
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -8,7 +8,7 @@ import org.apache.commons.io.FileUtils;
 
 import com.scriptor.Scriptor;
 import com.scriptor.Utils;
-import com.scriptor.frames.ProgressBarFrame;
+import com.scriptor.core.gui.frames.ScriptorProgressBar;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -36,7 +36,7 @@ public class ScriptorFilesExplorer extends JPanel {
     private JTree fileTree;
     private DefaultTreeModel treeModel;
     private DefaultMutableTreeNode rootNode;
-    private ProgressBarFrame progressBarFrame;
+    private ScriptorProgressBar progressBarFrame;
     private List<String> expandedFolders = new ArrayList<String>();
     private Thread thread;
     private String rootPath = "";
@@ -152,7 +152,7 @@ public class ScriptorFilesExplorer extends JPanel {
 
         countFilesAndDirectories(new File(rootPath).toPath());
 
-        progressBarFrame = new ProgressBarFrame(scriptor, "Files Explorer", "Loading Files...", filesCounter);
+        progressBarFrame = new ScriptorProgressBar(scriptor, "Files Explorer", "Loading Files...", filesCounter);
         progressBarFrame.setVisible(true);
 
         thread = new Thread(() -> {
@@ -342,7 +342,7 @@ public class ScriptorFilesExplorer extends JPanel {
                     File file = fileNode.getFile();
 
                     if (file.isFile()) {
-                        scriptor.openFileFromPath(file.getPath());
+                        scriptor.textAreaTabManager.openFileFromPath(file.getPath());
                     }
                 }
             }

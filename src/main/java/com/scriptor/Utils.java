@@ -11,10 +11,6 @@ import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.Token;
 
 public class Utils {
-    public static String getVersion() {
-        return "2024.10.20-1";
-    }
-
     public static String getSyntaxConstantByFileExtension(String extension) {
         switch (extension) {
             case "as":
@@ -594,7 +590,7 @@ public class Utils {
     public static String getAboutScriptor() {
         String[] array = {
             "General information:",
-            "• Version: " + getVersion(),
+            "• Version: " + Scriptor.getVersion(),
             "• Author(s): TFAGaming",
             "• License: The MIT License",
             "",

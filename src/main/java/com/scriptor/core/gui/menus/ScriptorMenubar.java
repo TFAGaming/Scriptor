@@ -1,4 +1,4 @@
-package com.scriptor.core.gui;
+package com.scriptor.core.gui.menus;
 
 import java.awt.event.*;
 
@@ -9,11 +9,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import com.scriptor.Scriptor;
 
 public class ScriptorMenubar extends JMenuBar {
-    //private Scriptor scriptor;
-
     public ScriptorMenubar(Scriptor scriptor) {
-        //this.scriptor = scriptor;
-
         /*
          * File menu
          */
@@ -24,7 +20,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemNewFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.newFile();
+                scriptor.textAreaTabManager.newFile();
             }
         });
 
@@ -33,7 +29,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemOpenFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.openFile();
+                scriptor.textAreaTabManager.openFile();
             }
         });
 
@@ -41,7 +37,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemOpenFolder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.openFolder();
+                scriptor.textAreaTabManager.openFolder();
             }
         });
 
@@ -50,7 +46,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemSave.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.saveFile();
+                scriptor.textAreaTabManager.saveFile();
             }
         });
 
@@ -59,7 +55,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemSaveAs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.saveAsFile();
+                scriptor.textAreaTabManager.saveAsFile();
             }
         });
 
@@ -67,7 +63,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemSaveAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scriptor.saveAllTextAreaTabs();
+                scriptor.textAreaTabManager.saveAllTabs();
             }
         });
 
@@ -75,10 +71,10 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemCloseTab.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int index = scriptor.tabbedTextAreaPane.getSelectedIndex();
+                int index = scriptor.textAreaTabManager.getCurrentIndex();
 
                 if (index != 1) {
-                    scriptor.closeTextAreaTabByIndex(index);
+                    scriptor.textAreaTabManager.closeTabByIndex(index);
                 }
             }
         });
@@ -87,11 +83,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemCloseAllTabs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int count = scriptor.arrayPaths.size();
-
-                if (count > 0) {
-                    scriptor.closeAllTextAreaTabs();
-                }
+                scriptor.textAreaTabManager.closeAllTabs();
             }
         });
 
@@ -118,7 +110,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemUndo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 if (textArea.canUndo()) {
                     textArea.undoLastAction();
@@ -131,7 +123,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemRedo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 if (textArea.canRedo()) {
                     textArea.redoLastAction();
@@ -144,7 +136,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemCut.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 textArea.cut();
             }
@@ -155,7 +147,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemCopy.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 textArea.copy();
             }
@@ -166,7 +158,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemPaste.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 textArea.paste();
             }
@@ -188,7 +180,7 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemSelectAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
                 textArea.selectAll();
             }
