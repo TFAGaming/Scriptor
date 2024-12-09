@@ -8,6 +8,7 @@ import com.scriptor.Scriptor;
 import java.awt.*;
 
 public class ProgressBarFrame extends JFrame {
+    private Scriptor scriptor;
     private JLabel label;
     private JProgressBar progressBar;
     private String text;
@@ -15,6 +16,8 @@ public class ProgressBarFrame extends JFrame {
     private int counter = 0;
 
     public ProgressBarFrame(Scriptor scriptor, String title, String text, int max) {
+        this.scriptor = scriptor;
+
         setTitle(title);
         setSize(400, 100);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -22,7 +25,7 @@ public class ProgressBarFrame extends JFrame {
         setResizable(false);
         setAlwaysOnTop(true);
 
-        setIconImage(scriptor.getIcon("scriptor_icon.png").getImage());
+        setIconImage(this.scriptor.getIcon("scriptor_icon.png").getImage());
 
         this.text = text;
         this.max = max;

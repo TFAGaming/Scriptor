@@ -1,4 +1,6 @@
-package com.scriptor.core;
+package com.scriptor.core.gui;
+
+import static javax.swing.JOptionPane.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -9,16 +11,17 @@ import javax.swing.border.EmptyBorder;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import com.scriptor.Scriptor;
+import com.scriptor.Utils;
 
 public class ScriptorToolbar extends JToolBar {
     // private Scriptor scriptor;
 
     public ScriptorToolbar(Scriptor scriptor) {
+        // this.scriptor = scriptor;
+
         setFloatable(false);
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         setBorder(new EmptyBorder(5, 5, 5, 0));
-
-        // this.scriptor = scriptor;
 
         JButton buttonNewFile = createButton(getIcon("new_file.png"), "New File");
         buttonNewFile.addActionListener(new ActionListener() {
@@ -52,7 +55,7 @@ public class ScriptorToolbar extends JToolBar {
             }
         });
 
-        JButton buttonCloseTab = createButton(getIcon("tabs_close.png"), "Close Tab");
+        /*JButton buttonCloseTab = createButton(getIcon("tabs_close.png"), "Close Tab");
         buttonCloseTab.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -71,6 +74,7 @@ public class ScriptorToolbar extends JToolBar {
                 scriptor.closeAllTextAreaTabs();
             }
         });
+        */
 
         JButton buttonTreeRefresh = createButton(getIcon("tree_explorer.gif"), "Refresh Files Explorer");
         buttonTreeRefresh.addActionListener(new ActionListener() {
@@ -170,54 +174,6 @@ public class ScriptorToolbar extends JToolBar {
             }
         });
 
-        JButton buttonNewTerminal = createButton(getIcon("terminal_new.png"), "New Terminal");
-        buttonNewTerminal.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                scriptor.newTerminal();
-            }
-        });
-
-        JButton buttonCloseCurrentTerminal = createButton(getIcon("terminal_close.png"), "Close Terminal");
-        buttonCloseCurrentTerminal.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = scriptor.tabbedTerminalPane.getSelectedIndex();
-
-                if (index != -1) {
-                    scriptor.closeTerminalTabByIndex(index);
-                }
-            }
-        });
-
-        JButton buttonStartTerminal = createButton(getIcon("terminal_restart.gif"), "Restart process");
-        buttonStartTerminal.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = scriptor.tabbedTerminalPane.getSelectedIndex();
-
-                if (index != -1) {
-                    ScriptorTerminal terminal = scriptor.arrayTerminals.get(index);
-
-                    terminal.restartProcess();
-                }
-            }
-        });
-
-        JButton buttonStopTerminal = createButton(getIcon("terminal_stop.gif"), "Stop Terminal's process");
-        buttonStopTerminal.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = scriptor.tabbedTerminalPane.getSelectedIndex();
-
-                if (index != -1) {
-                    ScriptorTerminal terminal = scriptor.arrayTerminals.get(index);
-
-                    terminal.closeProcess();
-                }
-            }
-        });
-
         JButton buttonSettings = createButton(getIcon("settings.gif"), "Settings");
         buttonSettings.addActionListener(new ActionListener() {
             @Override
@@ -232,7 +188,7 @@ public class ScriptorToolbar extends JToolBar {
         buttonHelp.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //
+                showMessageDialog(scriptor, Utils.getAboutScriptor(), "About Scriptor", INFORMATION_MESSAGE);
             }
         });
 
@@ -243,10 +199,10 @@ public class ScriptorToolbar extends JToolBar {
         add(buttonSave);
         add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonSaveAll);
-        add(Box.createRigidArea(new Dimension(4, 0)));
-        add(buttonCloseTab);
-        add(Box.createRigidArea(new Dimension(4, 0)));
-        add(buttonCloseAllTab);
+        //add(Box.createRigidArea(new Dimension(4, 0)));
+        //add(buttonCloseTab);
+        //add(Box.createRigidArea(new Dimension(4, 0)));
+        //add(buttonCloseAllTab);
         add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonTreeRefresh);
 
@@ -277,22 +233,6 @@ public class ScriptorToolbar extends JToolBar {
         add(buttonZoomOut);
         add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonSearchText);
-
-        add(Box.createRigidArea(new Dimension(4, 0)));
-        addSeparator(new Dimension(4, 20));
-        add(Box.createRigidArea(new Dimension(4, 0)));
-
-        add(buttonNewTerminal);
-        add(Box.createRigidArea(new Dimension(4, 0)));
-        add(buttonCloseCurrentTerminal);
-
-        add(Box.createRigidArea(new Dimension(4, 0)));
-        addSeparator(new Dimension(4, 20));
-        add(Box.createRigidArea(new Dimension(4, 0)));
-
-        add(buttonStartTerminal);
-        add(Box.createRigidArea(new Dimension(4, 0)));
-        add(buttonStopTerminal);
 
         add(Box.createRigidArea(new Dimension(4, 0)));
         addSeparator(new Dimension(4, 20));

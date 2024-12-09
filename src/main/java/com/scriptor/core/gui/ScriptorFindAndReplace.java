@@ -1,4 +1,4 @@
-package com.scriptor.core;
+package com.scriptor.core.gui;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ScriptorFindAndReplace extends JFrame {
+    private Scriptor scriptor;
     private RSyntaxTextArea textArea;
     private JTextField searchField;
     private JTextField replaceField;
@@ -30,15 +31,17 @@ public class ScriptorFindAndReplace extends JFrame {
     private java.util.List<Integer> matchPositions;
 
     public ScriptorFindAndReplace(Scriptor scriptor, RSyntaxTextArea textArea) {
+        this.scriptor = scriptor;
+
         setTitle("Find & Replace");
         setSize(400, 200);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setLocationRelativeTo(scriptor);
+        setLocationRelativeTo(this.scriptor);
         setLayout(new BorderLayout());
         setAlwaysOnTop(true);
 
-        setIconImage(scriptor.getIcon("scriptor_icon.png").getImage());
+        setIconImage(this.scriptor.getIcon("scriptor_icon.png").getImage());
 
         this.textArea = textArea;
 
@@ -56,10 +59,13 @@ public class ScriptorFindAndReplace extends JFrame {
         optionsPanel.setBorder(new EmptyBorder(5, 5, 10, 0));
 
         caseSensitiveCheck = new JCheckBox("Case Sensitive");
+        caseSensitiveCheck.setFocusable(false);
 
         wholeWordCheck = new JCheckBox("Whole Word");
+        wholeWordCheck.setFocusable(false);
 
         regexCheck = new JCheckBox("Regex");
+        regexCheck.setFocusable(false);
 
         optionsPanel.add(regexCheck);
         optionsPanel.add(wholeWordCheck);
@@ -71,6 +77,7 @@ public class ScriptorFindAndReplace extends JFrame {
         replacePanel.setBorder(new EmptyBorder(0, 5, 10, 0));
 
         replaceCheck = new JCheckBox("Replace: ");
+        replaceCheck.setFocusable(false);
         replaceCheck.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -101,10 +108,13 @@ public class ScriptorFindAndReplace extends JFrame {
         buttonPanel.setLayout(new FlowLayout());
 
         upButton = new JButton("Up");
+        upButton.setFocusable(false);
         upButton.setPreferredSize(new Dimension(80, 25));
         downButton = new JButton("Down");
+        downButton.setFocusable(false);
         downButton.setPreferredSize(new Dimension(80, 25));
         replaceButton = new JButton("Replace");
+        replaceButton.setFocusable(false);
         replaceButton.setPreferredSize(new Dimension(80, 25));
         replaceButton.setEnabled(false);
 

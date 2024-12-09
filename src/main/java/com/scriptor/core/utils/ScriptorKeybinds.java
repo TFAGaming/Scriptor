@@ -1,4 +1,4 @@
-package com.scriptor.core;
+package com.scriptor.core.utils;
 
 import javax.swing.*;
 
@@ -7,7 +7,11 @@ import com.scriptor.Scriptor;
 import java.awt.event.*;
 
 public class ScriptorKeybinds {
+    // private Scriptor scriptor;
+
     public ScriptorKeybinds(Scriptor scriptor, JTabbedPane tabbedPane) {
+        //this.scriptor = scriptor;
+
         tabbedPane.registerKeyboardAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

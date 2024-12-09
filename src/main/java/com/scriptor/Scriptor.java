@@ -6,11 +6,13 @@ import javax.swing.event.*;
 import javax.swing.text.BadLocationException;
 
 import org.fife.ui.rsyntaxtextarea.*;
-import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.*;
 
 import com.scriptor.config.ScriptorConfig;
-import com.scriptor.core.*;
-import com.scriptor.frames.WelcomeFrame;
+import com.scriptor.core.gui.*;
+import com.scriptor.core.plugins.ScriptorPluginsHandler;
+import com.scriptor.core.utils.*;
+import com.scriptor.frames.ScriptorWelcomeFrame;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -28,35 +30,34 @@ public class Scriptor extends JFrame implements ActionListener {
     public ScriptorConfig config = new ScriptorConfig("config.json");
     public ScriptorLogger logger = new ScriptorLogger();
     public JTabbedPane tabbedTextAreaPane;
-    public JTabbedPane tabbedTerminalPane;
     public ScriptorFilesExplorer filesExplorer;
     public JLabel bottomLabel;
     public JFileChooser fileChooser;
     public List<String> arrayPaths = new ArrayList<String>();
     public List<Boolean> arraySavedPaths = new ArrayList<Boolean>();
     public List<RSyntaxTextArea> arrayTextAreas = new ArrayList<RSyntaxTextArea>();
-    public List<ScriptorTerminal> arrayTerminals = new ArrayList<ScriptorTerminal>();
+    public ScriptorPluginsHandler pluginsHandler = new ScriptorPluginsHandler("plugins");
     public boolean _switchedTab = false;
-    public int _terminalsTabsCount = 0;
 
     public Scriptor() {
         logger.clearAll();
+
+        pluginsHandler.loadPlugins();
 
         setTitle("Scriptor");
         setSize(1600, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        setBackground(Color.decode("#f0f0f0"));
+        setBackground(Color.decode((String) pluginsHandler.getMergedConfig().get("frame.background.color")));
 
         setIconImage(getIcon("scriptor_icon.png").getImage());
 
-        customizeUI();
+        setSystemLookAndFeel();
 
         tabbedTextAreaPane = new JTabbedPane();
-        tabbedTextAreaPane.setBackground(Color.decode("#f0f0f0"));
-
-        tabbedTerminalPane = new JTabbedPane();
-        tabbedTerminalPane.setBackground(Color.decode("#f0f0f0"));
+        tabbedTextAreaPane.setBackground(
+                Color.decode((String) pluginsHandler.getMergedConfig().get("textarea.background.color")));
+        tabbedTextAreaPane.setFocusable(false);
 
         filesExplorer = new ScriptorFilesExplorer(this, config.getDirectoryPath() == null
                 ? System.getProperty("user.dir")
@@ -71,12 +72,15 @@ public class Scriptor extends JFrame implements ActionListener {
 
         add(toolBar, BorderLayout.NORTH);
 
-        JSplitPane primarySplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tabbedTextAreaPane, tabbedTerminalPane);
-        primarySplitPane.setResizeWeight(0.5);
-        primarySplitPane.setDividerLocation(0.3);
+        /*
+         * JSplitPane primarySplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+         * tabbedTextAreaPane, new JButton("test"));
+         * primarySplitPane.setResizeWeight(0.5);
+         * primarySplitPane.setDividerLocation(0.3);
+         */
 
         JSplitPane secondarySplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filesExplorer,
-                primarySplitPane);
+                tabbedTextAreaPane);
         secondarySplitPane.setResizeWeight(0.1);
         secondarySplitPane.setDividerLocation(0.8);
 
@@ -108,11 +112,22 @@ public class Scriptor extends JFrame implements ActionListener {
             }
         });
 
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                List<String> expandedFolders = filesExplorer.getExpandedFolders();
+
+                config.setExpandedFolders(expandedFolders);
+            }
+        });
+
         new ScriptorKeybinds(this, tabbedTextAreaPane);
 
         openPreviousTabs();
 
-        newTerminal();
+        if (config.getExpandedFolders().size() > 0) {
+            filesExplorer.restoreExpandedFolders(config.getExpandedFolders());
+        }
 
         tabbedTextAreaPane.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -120,8 +135,6 @@ public class Scriptor extends JFrame implements ActionListener {
 
                 if (selectedIndex >= 0 && arrayPaths.size() > 0) {
                     String path = arrayPaths.get(selectedIndex);
-
-                    System.out.println("OK");
 
                     setTitle("Scriptor - " + (path == null ? "Untitled" : path));
                 }
@@ -144,7 +157,7 @@ public class Scriptor extends JFrame implements ActionListener {
             scriptor.setVisible(true);
 
             if (scriptor.config.getShowWhatsNewOnStartUp()) {
-                WelcomeFrame welcomeFrame = new WelcomeFrame(scriptor);
+                ScriptorWelcomeFrame welcomeFrame = new ScriptorWelcomeFrame(scriptor);
 
                 welcomeFrame.setVisible(true);
             }
@@ -156,7 +169,7 @@ public class Scriptor extends JFrame implements ActionListener {
         // Nothing happens here.
     }
 
-    private void customizeUI() {
+    private void setSystemLookAndFeel() {
         try {
             try {
                 UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
@@ -187,13 +200,23 @@ public class Scriptor extends JFrame implements ActionListener {
         textArea.setDragEnabled(true);
         textArea.setTabSize(4);
         textArea.setCodeFoldingEnabled(true);
+        textArea.setHyperlinksEnabled(true);
+        textArea.setHighlightSecondaryLanguages(false);
 
         Font font = textArea.getFont();
         textArea.setFont(font.deriveFont((float) config.getZoom()));
 
         Utils.setTextSyntaxHighlightingColors(textArea);
 
-        RTextScrollPane scrollTextAreaPane = new RTextScrollPane(textArea);
+        RTextScrollPane scrollPane = new RTextScrollPane(textArea);
+
+        Gutter gutter = scrollPane.getGutter();
+
+        Font lineNumberFont = gutter.getLineNumberFont();
+        gutter.setLineNumberFont(lineNumberFont.deriveFont((float) config.getZoom()));
+
+        gutter.setBookmarkingEnabled(true);
+        gutter.setBookmarkIcon(getIcon("bookmark.gif"));
 
         textArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -265,13 +288,7 @@ public class Scriptor extends JFrame implements ActionListener {
 
         arrayTextAreas.add(textArea);
 
-        return scrollTextAreaPane;
-    }
-
-    private ScriptorTerminal newTerminalForTerminalPane() {
-        ScriptorTerminal terminal = new ScriptorTerminal(this, config.getDirectoryPath());
-
-        return terminal;
+        return scrollPane;
     }
 
     private RSyntaxTextArea newTextArea(String filePath) {
@@ -290,6 +307,7 @@ public class Scriptor extends JFrame implements ActionListener {
         textArea.setDragEnabled(true);
         textArea.setTabSize(4);
         textArea.setCodeFoldingEnabled(true);
+        textArea.setHyperlinksEnabled(true);
 
         Font font = textArea.getFont();
         textArea.setFont(font.deriveFont((float) config.getZoom()));
@@ -310,8 +328,18 @@ public class Scriptor extends JFrame implements ActionListener {
                 }
 
                 textArea.setFont(font.deriveFont(size));
-                config.setZoom(Math.round(size));
 
+                RTextScrollPane scrollPane = (RTextScrollPane) SwingUtilities.getAncestorOfClass(RTextScrollPane.class,
+                        textArea);
+                if (scrollPane != null) {
+                    Gutter gutter = scrollPane.getGutter();
+
+                    Font lineNumberFont = gutter.getLineNumberFont();
+
+                    gutter.setLineNumberFont(lineNumberFont.deriveFont(size));
+                }
+
+                config.setZoom(Math.round(size));
                 updateBottomLabel();
             }
         }
@@ -328,8 +356,18 @@ public class Scriptor extends JFrame implements ActionListener {
                 }
 
                 textArea.setFont(font.deriveFont(size));
-                config.setZoom(Math.round(size));
 
+                RTextScrollPane scrollPane = (RTextScrollPane) SwingUtilities.getAncestorOfClass(RTextScrollPane.class,
+                        textArea);
+                if (scrollPane != null) {
+                    Gutter gutter = scrollPane.getGutter();
+
+                    Font lineNumberFont = gutter.getLineNumberFont();
+
+                    gutter.setLineNumberFont(lineNumberFont.deriveFont(size));
+                }
+
+                config.setZoom(Math.round(size));
                 updateBottomLabel();
             }
         }
@@ -348,21 +386,9 @@ public class Scriptor extends JFrame implements ActionListener {
         setTitle("Scriptor - " + "Untitled");
     }
 
-    public void newTerminal() {
-        ScriptorTerminal terminal = newTerminalForTerminalPane();
-
-        _terminalsTabsCount++;
-
-        arrayTerminals.add(terminal);
-
-        tabbedTerminalPane.addTab("Terminal #" + _terminalsTabsCount, terminal);
-        addCloseButtonToTerminalTab();
-
-        tabbedTerminalPane.setSelectedIndex(tabbedTerminalPane.getTabCount() - 1);
-    }
-
     public void openFile() {
         fileChooser.setDialogTitle("Open File");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
@@ -459,6 +485,8 @@ public class Scriptor extends JFrame implements ActionListener {
         if (arrayPaths.size() == 2 && arrayPaths.get(0) == null && arrayTextAreas.get(0).getText().length() == 0) {
             closeTextAreaTabByIndex(0);
         }
+
+        updateBottomLabel();
     }
 
     public void saveFile() {
@@ -655,15 +683,6 @@ public class Scriptor extends JFrame implements ActionListener {
         }
     }
 
-    public void closeTerminalTabByIndex(int index) {
-        tabbedTerminalPane.removeTabAt(index);
-        arrayTerminals.remove(index);
-
-        if (arrayTerminals.size() == 0) {
-            newTerminal();
-        }
-    }
-
     private void addCloseButtonToTextAreaTab() {
         int index = tabbedTextAreaPane.getTabCount() - 1;
 
@@ -684,6 +703,8 @@ public class Scriptor extends JFrame implements ActionListener {
                 int index = tabbedTextAreaPane.indexOfTabComponent(tabPanel);
 
                 closeTextAreaTabByIndex(index);
+
+                updateBottomLabel();
             }
         });
 
@@ -691,35 +712,6 @@ public class Scriptor extends JFrame implements ActionListener {
         tabPanel.add(closeButton, BorderLayout.EAST);
 
         tabbedTextAreaPane.setTabComponentAt(index, tabPanel);
-    }
-
-    private void addCloseButtonToTerminalTab() {
-        int index = tabbedTerminalPane.getTabCount() - 1;
-
-        JPanel tabPanel = new JPanel(new BorderLayout());
-        tabPanel.setOpaque(false);
-
-        JLabel tabTitle = new JLabel(tabbedTerminalPane.getTitleAt(index));
-
-        JButton closeButton = new JButton("  ✕");
-        closeButton.setPreferredSize(new Dimension(17, 17));
-        closeButton.setFocusable(false);
-        closeButton.setBorder(BorderFactory.createEmptyBorder());
-        closeButton.setContentAreaFilled(false);
-
-        closeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = tabbedTerminalPane.indexOfTabComponent(tabPanel);
-
-                closeTerminalTabByIndex(index);
-            }
-        });
-
-        tabPanel.add(tabTitle, BorderLayout.WEST);
-        tabPanel.add(closeButton, BorderLayout.EAST);
-
-        tabbedTerminalPane.setTabComponentAt(index, tabPanel);
     }
 
     public void updateTextAreaTabTitle(int index, String newTitle) {
@@ -769,14 +761,6 @@ public class Scriptor extends JFrame implements ActionListener {
         }
     }
 
-    public void closeAllTerminalTabs() {
-        int size = arrayTerminals.size();
-
-        for (int index = size - 1; index >= 0; index--) {
-            closeTerminalTabByIndex(index);
-        }
-    }
-
     public void setUserToTabByPath(String path) {
         if (arrayPaths.contains(path)) {
             int index = arrayPaths.indexOf(path);
@@ -793,16 +777,6 @@ public class Scriptor extends JFrame implements ActionListener {
         }
 
         return arrayTextAreas.get(index);
-    }
-
-    public ScriptorTerminal getCurrentTerminal() {
-        int index = tabbedTerminalPane.getSelectedIndex();
-
-        if (index != 1) {
-            return arrayTerminals.get(index);
-        } else {
-            return null;
-        }
     }
 
     public void updateBottomLabel() {
@@ -824,9 +798,9 @@ public class Scriptor extends JFrame implements ActionListener {
         }
 
         int currentIndex = tabbedTextAreaPane.getSelectedIndex();
-        String language = "Unknown";
+        String language = "Plain Text";
 
-        if (currentIndex != 1 && arrayPaths.size() > 0) {
+        if (arrayPaths.size() > 0) {
             String path = arrayPaths.get(currentIndex);
 
             if (path != null) {
@@ -836,7 +810,8 @@ public class Scriptor extends JFrame implements ActionListener {
         }
 
         bottomLabel.setText(language + " | Length: " + textArea.getText().trim().length() + ", Lines: "
-                + textArea.getText().trim().split("\n").length + " | Line: " + lineNumber + ", Column: " + column + " | Zoom: " + config.getZoom() + ", Encoding: UTF-8");
+                + textArea.getText().trim().split("\n").length + " | Line: " + lineNumber + ", Column: " + column
+                + " | Zoom: " + config.getZoom() + ", Encoding: UTF-8");
     }
 
     public ImageIcon getIcon(String iconName) {

@@ -1,4 +1,4 @@
-package com.scriptor.core;
+package com.scriptor.core.gui;
 
 import java.awt.event.*;
 
@@ -9,13 +9,17 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import com.scriptor.Scriptor;
 
 public class ScriptorMenubar extends JMenuBar {
+    //private Scriptor scriptor;
+
     public ScriptorMenubar(Scriptor scriptor) {
+        //this.scriptor = scriptor;
+
         /*
          * File menu
          */
         JMenu fileMenu = new JMenu("File");
 
-        JMenuItem menuItemNewFile = createMenuItem("New File", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemNewFile = createMenuItem("New File", scriptor.getIcon("new_file.png"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
         menuItemNewFile.addActionListener(new ActionListener() {
             @Override
@@ -24,7 +28,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemOpenFile = createMenuItem("Open File", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemOpenFile = createMenuItem("Open File", scriptor.getIcon("file_open.png"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         menuItemOpenFile.addActionListener(new ActionListener() {
             @Override
@@ -33,7 +37,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemOpenFolder = createMenuItem("Open Folder", TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemOpenFolder = createMenuItem("Open Folder", scriptor.getIcon("folder_open.png"), TOOL_TIP_TEXT_KEY, null);
         menuItemOpenFolder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -41,7 +45,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemSave = createMenuItem("Save", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemSave = createMenuItem("Save", scriptor.getIcon("save.gif"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         menuItemSave.addActionListener(new ActionListener() {
             @Override
@@ -50,7 +54,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemSaveAs = createMenuItem("Save As", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemSaveAs = createMenuItem("Save As", scriptor.getIcon("saveas.gif"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK + KeyEvent.SHIFT_DOWN_MASK));
         menuItemSaveAs.addActionListener(new ActionListener() {
             @Override
@@ -59,7 +63,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemSaveAll = createMenuItem("Save All", TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemSaveAll = createMenuItem("Save All", scriptor.getIcon("saveall.gif"), TOOL_TIP_TEXT_KEY, null);
         menuItemSaveAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,7 +71,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemCloseTab = createMenuItem("Close Tab", TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemCloseTab = createMenuItem("Close Tab", scriptor.getIcon("close_tab.png"), TOOL_TIP_TEXT_KEY, null);
         menuItemCloseTab.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -79,7 +83,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemCloseAllTabs = createMenuItem("Close All Tabs", TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemCloseAllTabs = createMenuItem("Close All Tabs", scriptor.getIcon("close_all_tabs.png"), TOOL_TIP_TEXT_KEY, null);
         menuItemCloseAllTabs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -109,7 +113,7 @@ public class ScriptorMenubar extends JMenuBar {
 
         JMenu editMenu = new JMenu("Edit");
 
-        JMenuItem menuItemUndo = createMenuItem("Undo", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemUndo = createMenuItem("Undo", scriptor.getIcon("undo.gif"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
         menuItemUndo.addActionListener(new ActionListener() {
             @Override
@@ -122,7 +126,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemRedo = createMenuItem("Redo", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemRedo = createMenuItem("Redo", scriptor.getIcon("redo.gif"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK));
         menuItemRedo.addActionListener(new ActionListener() {
             @Override
@@ -135,7 +139,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemCut = createMenuItem("Cut", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemCut = createMenuItem("Cut", scriptor.getIcon("cut.gif"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
         menuItemCut.addActionListener(new ActionListener() {
             @Override
@@ -146,7 +150,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemCopy = createMenuItem("Copy", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemCopy = createMenuItem("Copy", scriptor.getIcon("copy.gif"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
         menuItemCopy.addActionListener(new ActionListener() {
             @Override
@@ -157,7 +161,7 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemPaste = createMenuItem("Paste", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemPaste = createMenuItem("Paste", scriptor.getIcon("paste.gif"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
         menuItemPaste.addActionListener(new ActionListener() {
             @Override
@@ -168,18 +172,18 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemDelete = createMenuItem("Delete", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemDelete = createMenuItem("Delete", scriptor.getIcon("trash.gif"), TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
         menuItemDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                //RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
 
                 // TODO Delete word
             }
         });
 
-        JMenuItem menuItemSelectAll = createMenuItem("Select All", TOOL_TIP_TEXT_KEY,
+        JMenuItem menuItemSelectAll = createMenuItem("Select All", null, TOOL_TIP_TEXT_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
         menuItemSelectAll.addActionListener(new ActionListener() {
             @Override
@@ -203,7 +207,7 @@ public class ScriptorMenubar extends JMenuBar {
         add(editMenu);
     }
 
-    private JMenuItem createMenuItem(String text, /* ImageIcon menuItemIcon, */ String tooltip, KeyStroke accelerator) {
+    private JMenuItem createMenuItem(String text, ImageIcon menuItemIcon, String tooltip, KeyStroke accelerator) {
         JMenuItem menuItem = new JMenuItem(text);
 
         if (tooltip != null) {
@@ -212,6 +216,10 @@ public class ScriptorMenubar extends JMenuBar {
 
         if (accelerator != null) {
             menuItem.setAccelerator(accelerator);
+        }
+
+        if (menuItemIcon != null) {
+            menuItem.setIcon(menuItemIcon);
         }
 
         return menuItem;

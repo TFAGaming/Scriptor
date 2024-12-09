@@ -1,0 +1,15 @@
+{
+  "name" : "Default configuration",
+  "description" : "The plugin with default configuration for Scriptor. Do NOT delete this plugin!",
+  "version" : "1.0.0",
+  "config" : {
+    "terminalarea.text.color" : "#000000",
+    "terminalarea.prompttext.color" : "#808080",
+    "frame.background.color" : "#f0f0f0",
+    "textarea.background.color" : "#f0f0f0",
+    "terminalarea.caretcolor.color" : "#000000",
+    "terminalarea.background.color" : "#ffffff",
+    "terminalarea.foreground.color" : "#000000"
+  },
+  "enabled" : true
+}

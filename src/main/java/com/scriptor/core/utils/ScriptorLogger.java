@@ -1,14 +1,14 @@
-package com.scriptor.core;
+package com.scriptor.core.utils;
 
 import java.io.*;
 import java.util.Scanner;
 
 public class ScriptorLogger {
+    private File file;
     public static int INFO = 1;
     public static int WARNING = 1 << 1;
     public static int ERROR = 1 << 2;
     public static int FATAL = 1 << 3;
-    private File file;
 
     public ScriptorLogger() {
         try {

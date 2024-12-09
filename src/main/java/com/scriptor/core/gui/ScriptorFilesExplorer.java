@@ -1,4 +1,4 @@
-package com.scriptor.core;
+package com.scriptor.core.gui;
 
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -11,6 +11,8 @@ import com.scriptor.Utils;
 import com.scriptor.frames.ProgressBarFrame;
 
 import javax.swing.*;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.*;
 
 import static javax.swing.JOptionPane.*;
@@ -22,31 +24,36 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class ScriptorFilesExplorer extends JPanel {
-    private Scriptor editor;
+    private Scriptor scriptor;
+
     private JTree fileTree;
     private DefaultTreeModel treeModel;
     private DefaultMutableTreeNode rootNode;
     private ProgressBarFrame progressBarFrame;
+    private List<String> expandedFolders = new ArrayList<String>();
     private Thread thread;
     private String rootPath = "";
     private int filesCounter = 0;
 
-    public ScriptorFilesExplorer(Scriptor editor, String rootPath) {
-        setLayout(new BorderLayout());
-
+    public ScriptorFilesExplorer(Scriptor scriptor, String rootPath) {
         this.rootPath = rootPath;
-        this.editor = editor;
+        this.scriptor = scriptor;
+
+        setLayout(new BorderLayout());
 
         rootNode = new DefaultMutableTreeNode(new FileNode(new File(rootPath)));
         treeModel = new DefaultTreeModel(rootNode);
 
         fileTree = new JTree(treeModel);
         fileTree.setShowsRootHandles(true);
+        fileTree.setFocusable(false);
 
         fileTree.setCellRenderer(new FileTreeCellRenderer());
 
@@ -57,6 +64,7 @@ public class ScriptorFilesExplorer extends JPanel {
 
         fileTree.addMouseListener(new RightClickMouseListener());
         fileTree.addMouseListener(new LeftClickMouseListener());
+        fileTree.addTreeExpansionListener(new FolderExpansionListener());
     }
 
     public void setPath(String newPath) {
@@ -120,6 +128,20 @@ public class ScriptorFilesExplorer extends JPanel {
         }
     }
 
+    public List<String> getExpandedFolders() {
+        return new ArrayList<String>(expandedFolders);
+    }
+
+    public void restoreExpandedFolders(List<String> folderPaths) {
+        for (String folderPath : folderPaths) {
+            DefaultMutableTreeNode node = findNodeByPath(folderPath);
+
+            if (node != null) {
+                fileTree.expandPath(new TreePath(node.getPath()));
+            }
+        }
+    }
+
     private void populateTreeWithThread(DefaultMutableTreeNode rootNode, File fileRoot) {
         if (thread != null) {
             progressBarFrame.dispose();
@@ -130,7 +152,7 @@ public class ScriptorFilesExplorer extends JPanel {
 
         countFilesAndDirectories(new File(rootPath).toPath());
 
-        progressBarFrame = new ProgressBarFrame(editor, "Files Explorer", "Loading Files...", filesCounter);
+        progressBarFrame = new ProgressBarFrame(scriptor, "Files Explorer", "Loading Files...", filesCounter);
         progressBarFrame.setVisible(true);
 
         thread = new Thread(() -> {
@@ -224,7 +246,7 @@ public class ScriptorFilesExplorer extends JPanel {
                 }
             });
         } catch (IOException e) {
-            showMessageDialog(editor, "Unable to access to the file or directory:\n" + path, "Error", ERROR_MESSAGE);
+            showMessageDialog(scriptor, "Unable to access to the file or directory:\n" + path, "Error", ERROR_MESSAGE);
         }
     }
 
@@ -263,15 +285,18 @@ public class ScriptorFilesExplorer extends JPanel {
 
             if (file.isFile()) {
                 setIcon(ScriptorFilesExplorer.this.getFileIcon(file));
+                setFocusable(false);
             } else if (file.isDirectory()) {
                 try (Stream<Path> files = Files.list(file.toPath())) {
                     long count = files.count();
 
                     if (count == 0) {
                         setIcon(ScriptorFilesExplorer.this.getFolderIcon(true));
+                        setFocusable(false);
                     } else {
                         setClosedIcon(ScriptorFilesExplorer.this.getFolderIcon(true));
                         setOpenIcon(ScriptorFilesExplorer.this.getFolderIcon(false));
+                        setFocusable(false);
                     }
                 } catch (IOException e) {
 
@@ -317,10 +342,32 @@ public class ScriptorFilesExplorer extends JPanel {
                     File file = fileNode.getFile();
 
                     if (file.isFile()) {
-                        editor.openFileFromPath(file.getPath());
+                        scriptor.openFileFromPath(file.getPath());
                     }
                 }
             }
+        }
+    }
+
+    private class FolderExpansionListener implements TreeExpansionListener {
+        @Override
+        public void treeExpanded(TreeExpansionEvent event) {
+            TreePath path = event.getPath();
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+            FileNode fileNode = (FileNode) node.getUserObject();
+
+            if (!expandedFolders.contains(fileNode.getFile().getPath())) {
+                expandedFolders.add(fileNode.getFile().getPath());
+            }
+        }
+
+        @Override
+        public void treeCollapsed(TreeExpansionEvent event) {
+            TreePath path = event.getPath();
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+            FileNode fileNode = (FileNode) node.getUserObject();
+
+            expandedFolders.remove(fileNode.getFile().getPath());
         }
     }
 
@@ -414,7 +461,7 @@ public class ScriptorFilesExplorer extends JPanel {
 
         String type = !isFolder ? "File" : "Folder";
 
-        String newName = JOptionPane.showInputDialog(editor, "Enter " + type.toLowerCase() + " name:",
+        String newName = JOptionPane.showInputDialog(scriptor, "Enter " + type.toLowerCase() + " name:",
                 "New " + type, JOptionPane.PLAIN_MESSAGE);
 
         if (newName != null && !newName.trim().isEmpty()) {
@@ -429,7 +476,7 @@ public class ScriptorFilesExplorer extends JPanel {
 
                 addPath(newItem.getPath());
             } catch (IOException | InvalidPathException error) {
-                JOptionPane.showMessageDialog(editor,
+                JOptionPane.showMessageDialog(scriptor,
                         "Error creating " + type.toLowerCase() + ":\n" + selectedDirectory.getPath(),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -450,7 +497,7 @@ public class ScriptorFilesExplorer extends JPanel {
 
         String type = selectedFile.isFile() ? "File" : "Folder";
 
-        String newName = JOptionPane.showInputDialog(editor, "Enter the new name for " + selectedFile.getName() + ":",
+        String newName = JOptionPane.showInputDialog(scriptor, "Enter the new name for " + selectedFile.getName() + ":",
                 "Rename " + type, JOptionPane.PLAIN_MESSAGE);
 
         if (newName != null && !newName.trim().isEmpty()) {
@@ -458,7 +505,7 @@ public class ScriptorFilesExplorer extends JPanel {
                 File newFile = new File(Paths.get(selectedFile.getParent(), newName).toString());
 
                 if (newFile.exists()) {
-                    JOptionPane.showMessageDialog(editor,
+                    JOptionPane.showMessageDialog(scriptor,
                             "Unable to rename the " + type.toLowerCase()
                                     + " because a file or a folder already exists with that name.\n"
                                     + newFile.getPath(),
@@ -475,7 +522,7 @@ public class ScriptorFilesExplorer extends JPanel {
 
                 renamePath(selectedFile.getPath(), newFile.getPath());
             } catch (IOException | InvalidPathException error) {
-                JOptionPane.showMessageDialog(editor,
+                JOptionPane.showMessageDialog(scriptor,
                         "Error renaming " + type.toLowerCase() + ":\n" + selectedFile.getPath(),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -510,7 +557,7 @@ public class ScriptorFilesExplorer extends JPanel {
 
                 removePath(selectedFile.getPath());
             } catch (IOException | InvalidPathException error) {
-                JOptionPane.showMessageDialog(editor,
+                JOptionPane.showMessageDialog(scriptor,
                         "Error deleting " + type.toLowerCase() + ":\n" + selectedFile.getPath(),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }

@@ -1,26 +1,31 @@
-package com.scriptor.core;
+package com.scriptor.core.gui;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import com.scriptor.Scriptor;
+import com.scriptor.core.plugins.ScriptorPlugin;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 
 public class ScriptorConfigFrame extends JFrame {
+    private Scriptor scriptor;
+
     public ScriptorConfigFrame(Scriptor scriptor) {
+        this.scriptor = scriptor;
+
         setTitle("Scriptor Configuration");
         setSize(600, 400);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        setIconImage(scriptor.getIcon("scriptor_icon.png").getImage());
+        setIconImage(this.scriptor.getIcon("scriptor_icon.png").getImage());
 
         JSplitPane splitPane = new JSplitPane();
         splitPane.setDividerLocation(200);
@@ -31,9 +36,7 @@ public class ScriptorConfigFrame extends JFrame {
 
         tabbedPane.addTab("General", createGeneralSettingsPanel());
         tabbedPane.addTab("Editor", createEditorSettingsPanel());
-        tabbedPane.addTab("Syntax Highlighting", createSyntaxHighlightingSettingsPanel());
-        //tabbedPane.addTab("Display", createDisplaySettingsPanel());
-        //tabbedPane.addTab("Network", createNetworkSettingsPanel());
+        tabbedPane.addTab("Plugins", createPluginsSettingsPanel());
 
         splitPane.setLeftComponent(tabbedPane);
 
@@ -74,7 +77,7 @@ public class ScriptorConfigFrame extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		JCheckBox autoIndentCheckBox = new JCheckBox();
+        JCheckBox autoIndentCheckBox = new JCheckBox();
         JLabel autoIndentLabel = new JLabel("Enable Auto-Indent");
         panel.add(newJPanelLeftLayout(autoIndentCheckBox, autoIndentLabel));
 
@@ -89,59 +92,87 @@ public class ScriptorConfigFrame extends JFrame {
         JLabel bracketMatchingNewLabel = new JLabel("Enable Bracket matching");
         panel.add(newJPanelLeftLayout(bracketMatchingCheckBox, bracketMatchingNewLabel));
 
-		JCheckBox syntaxHighlightingEnabledCheckBox = new JCheckBox();
+        JCheckBox syntaxHighlightingEnabledCheckBox = new JCheckBox();
         JLabel syntaxHighlightingEnabledLabel = new JLabel("Enable Syntax Highlighting");
         panel.add(newJPanelLeftLayout(syntaxHighlightingEnabledCheckBox, syntaxHighlightingEnabledLabel));
 
         return panel;
     }
 
-    private JPanel createSyntaxHighlightingSettingsPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    /*
+     * private JPanel createSyntaxHighlightingSettingsPanel() {
+     * JPanel panel = new JPanel();
+     * panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+     * 
+     * String[] columnNames = { "Token", "Selected Color", "Choose Color" };
+     * Object[][] rows = {
+     * { "Annotation", "#008000", "Choose" },
+     * { "Reserved Word", "#0000FF", "Choose" },
+     * 
+     * { "Literal String Double Quote", "#008000", "Choose" },
+     * { "Literal Char", "#008000", "Choose" },
+     * { "Literal Backquote", "#008000", "Choose" },
+     * { "Literal Boolean", "#AF00DB", "Choose" },
+     * { "Literal Decimal Integer", "#979412", "Choose" },
+     * { "Literal Float", "#979412", "Choose" },
+     * { "Literal Hexadecimal", "#979412", "Choose" },
+     * 
+     * { "Regular Expression", "#CB1823", "Choose" },
+     * 
+     * { "Comment Multiline", "#808080", "Choose" },
+     * { "Comment Documentation", "#808080", "Choose" },
+     * { "Comment EOL", "#808080", "Choose" },
+     * 
+     * { "Separator", "#000000", "Choose" },
+     * { "Operator", "#000000", "Choose" },
+     * { "Identifier", "#000000", "Choose" },
+     * { "Variable", "#E8541E", "Choose" },
+     * { "Function", "#FF0000", "Choose" },
+     * { "Preprocessor", "#0000FF", "Choose" },
+     * 
+     * { "Markup CDATA", "#0037A4", "Choose" },
+     * { "Markup Comment", "#808080", "Choose" },
+     * { "Markup DTD", "#BC8C2B", "Choose" },
+     * { "Markup Entity Reference", "#0000FF", "Choose" },
+     * { "Markup Processing Instruction", "#0000FF", "Choose" },
+     * { "Markup Tag Attribute", "#64278F", "Choose" },
+     * { "Markup Tag Attribute Value", "#008000", "Choose" },
+     * { "Markup Tag Delimiter", "#1C1A5D", "Choose" },
+     * { "Markup Tag Name", "#1C1A5D", "Choose" },
+     * };
+     * 
+     * DefaultTableModel model = new DefaultTableModel(rows, columnNames) {
+     * 
+     * @Override
+     * public boolean isCellEditable(int row, int column) {
+     * return column == 2;
+     * }
+     * };
+     * 
+     * JTable table = new JTable(model);
+     * table.setRowHeight(25);
+     * 
+     * table.getColumnModel().getColumn(1).setCellRenderer(new
+     * DisabledTextFieldRenderer());
+     * table.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer());
+     * table.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(table));
+     * 
+     * table.setDragEnabled(false);
+     * 
+     * JScrollPane scrollPane = new JScrollPane(table);
+     * scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+     * 
+     * panel.add(scrollPane);
+     * 
+     * return panel;
+     * }
+     */
 
-        String[] columnNames = { "Token", "Selected Color", "Choose Color" };
-        Object[][] rows = {
-                { "Reserved Word", "#0000FF", "Choose" },
-                { "Literal String Double Quote", "#008000", "Choose" },
-                { "Literal Char", "#008000", "Choose" },
-                { "Literal Backquote", "#008000", "Choose" },
-                { "Literal Boolean", "#AF00DB", "Choose" },
-                { "Literal Decimal Integer", "#979412", "Choose" },
-                { "Literal Float", "#979412", "Choose" },
-                { "Literal Hexadecimal", "#979412", "Choose" },
-                { "Regular Expression", "#CB1823", "Choose" },
-                { "Comment Multiline", "#808080", "Choose" },
-                { "Comment Documentation", "#808080", "Choose" },
-                { "Comment EOL", "#808080", "Choose" },
-                { "Separator", "#000000", "Choose" },
-                { "Operator", "#000000", "Choose" },
-                { "Identifier", "#000000", "Choose" },
-                { "Variable", "#E8541E", "Choose" },
-                { "Function", "#FF0000", "Choose" },
-                { "Preprocessor", "#0000FF", "Choose" },
-        };
+    private JPanel createPluginsSettingsPanel() {
+        this.scriptor.pluginsHandler.loadPlugins();
+        List<ScriptorPlugin> plugins = this.scriptor.pluginsHandler.getPlugins();
 
-        DefaultTableModel model = new DefaultTableModel(rows, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 2;
-            }
-        };
-
-        JTable table = new JTable(model);
-        table.setRowHeight(25);
-
-        table.getColumnModel().getColumn(1).setCellRenderer(new DisabledTextFieldRenderer());
-        table.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(table));
-
-		table.setDragEnabled(false);
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-        panel.add(scrollPane);
+        ScriptorPluginsUI panel = new ScriptorPluginsUI(this.scriptor, plugins);
 
         return panel;
     }
@@ -151,7 +182,7 @@ public class ScriptorConfigFrame extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
         if (!(components[components.length - 1] == null)) {
-            panel.setBorder(new EmptyBorder(5, 5, 0, 0));   
+            panel.setBorder(new EmptyBorder(5, 5, 0, 0));
         }
 
         for (JComponent component : components) {
@@ -161,7 +192,7 @@ public class ScriptorConfigFrame extends JFrame {
 
             component.setAlignmentX(Component.LEFT_ALIGNMENT);
             component.setMaximumSize(component.getPreferredSize());
-			component.setFocusable(false);
+            component.setFocusable(false);
 
             panel.add(component);
             panel.add(Box.createRigidArea(new Dimension(5, 0)));

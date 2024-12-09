@@ -8,6 +8,7 @@ public class ConfigStructure {
     private List<String> paths;
     private boolean extended;
     private int zoom;
+    private List<String> expandedFolders;
 
     public boolean getShowWhatsNewOnStartUp() { return showWhatsNewOnStartUp; }
     public void setShowWhatsNewOnStartUp(boolean value) { this.showWhatsNewOnStartUp = value; }
@@ -23,4 +24,7 @@ public class ConfigStructure {
 
     public int getZoom() { return zoom; }
     public void setZoom(int value) { this.zoom = value; }
+
+    public List<String> getExpandedFolders() { return expandedFolders; }
+    public void setExpandedFolders(List<String> folders) { this.expandedFolders = folders; }
 }

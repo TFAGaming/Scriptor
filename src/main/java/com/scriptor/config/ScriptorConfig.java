@@ -60,6 +60,10 @@ public class ScriptorConfig {
     public int getZoom() {
         return structure.getZoom();
     }
+
+    public List<String> getExpandedFolders() {
+        return structure.getExpandedFolders();
+    }
     
     public void setShowWhatsNewOnStartUp(boolean value) {
         structure.setShowWhatsNewOnStartUp(value);
@@ -111,12 +115,23 @@ public class ScriptorConfig {
         }
     }
 
+    public void setExpandedFolders(List<String> folders) {
+        structure.setExpandedFolders(folders);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setDefault() throws IOException {
         structure.setShowWhatsNewOnStartUp(true);
         structure.setDirectoryPath(null);
         structure.setPaths(new ArrayList<String>());
         structure.setExtended(false);
         structure.setZoom(12);
+        structure.setExpandedFolders(new ArrayList<String>());
 
         save();
     }

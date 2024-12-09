@@ -11,15 +11,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 
-public class WelcomeFrame extends JFrame {
-    public WelcomeFrame(Scriptor scriptor) {
+public class ScriptorWelcomeFrame extends JFrame {
+    private Scriptor scriptor;
+
+    public ScriptorWelcomeFrame(Scriptor scriptor) {
+        this.scriptor = scriptor;
+
         setTitle("What\'s new?");
         setSize(800, 600);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        setIconImage(scriptor.getIcon("scriptor_icon.png").getImage());
+        setIconImage(this.scriptor.getIcon("scriptor_icon.png").getImage());
 
         JLabel label = new JLabel("Version: " + Utils.getVersion());
 
@@ -48,8 +52,10 @@ public class WelcomeFrame extends JFrame {
         }
 
         JCheckBox checkBox = new JCheckBox("Never show this again.");
+        checkBox.setFocusable(false);
 
         JButton okButton = new JButton("OK");
+        okButton.setFocusable(false);
         okButton.setPreferredSize(new Dimension(80, 25));
 
         okButton.addActionListener(new ActionListener() {

@@ -325,10 +325,10 @@ public class Utils {
 
     public static String getLanguageByFileExtension(String extension) {
         if (extension == null) {
-            return "Unknown";
+            return "Plain Text";
         }
 
-        switch (extension) {
+        switch (extension.toLowerCase()) {
             case "as":
                 return "ActionScript";
             case "asm":
@@ -450,7 +450,7 @@ public class Utils {
             case "txt":
                 return "Text File";
             default:
-                return "Unknown";
+                return "Plain Text";
         }
     }
 
@@ -489,6 +489,7 @@ public class Utils {
                 "json",
                 "jsonc",
                 "kl",
+                "kt",
                 "lex",
                 "less",
                 "lisp",
@@ -575,18 +576,41 @@ public class Utils {
         scheme.getStyle(Token.VARIABLE).foreground = Color.decode("#c02d2e");
         scheme.getStyle(Token.FUNCTION).foreground = Color.RED;
         scheme.getStyle(Token.PREPROCESSOR).foreground = Color.decode("#0037a4");
-        
+
         // HTML / XML related
         scheme.getStyle(Token.MARKUP_CDATA).foreground = Color.decode("#0037a4");
         scheme.getStyle(Token.MARKUP_COMMENT).foreground = Color.GRAY;
         scheme.getStyle(Token.MARKUP_DTD).foreground = Color.decode("#bc8c2b");
-        //scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = Color.BLUE;
-        //scheme.getStyle(Token.MARKUP_PROCESSING_INSTRUCTION).foreground = Color.BLUE;
+        // scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = Color.BLUE;
+        // scheme.getStyle(Token.MARKUP_PROCESSING_INSTRUCTION).foreground = Color.BLUE;
         scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE).foreground = Color.decode("#64278f");
         scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE_VALUE).foreground = Color.decode("#008000");
         scheme.getStyle(Token.MARKUP_TAG_DELIMITER).foreground = Color.decode("#1c1a5d");
         scheme.getStyle(Token.MARKUP_TAG_NAME).foreground = Color.decode("#1c1a5d");
 
         textArea.setSyntaxScheme(scheme);
+    }
+
+    public static String getAboutScriptor() {
+        String[] array = {
+            "General information:",
+            "• Version: " + getVersion(),
+            "• Author(s): TFAGaming",
+            "• License: The MIT License",
+            "",
+            "Dependencies used to make Scriptor:",
+            "• Apache Commons IO",
+            "• RSyntaxTextArea (com.fifesoft)",
+            "• Autocomplete (com.fifesoft)",
+            "• Batik Codec (org.apache.xmlgraphics)",
+            "• Jackson Databind (com.fasterxml.jackson.core)"
+        };
+        String finalString = "";
+
+        for (String each : array) {
+            finalString += each + "\n";
+        }
+
+        return finalString;
     }
 }
