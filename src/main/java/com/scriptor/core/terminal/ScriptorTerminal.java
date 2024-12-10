@@ -3,8 +3,7 @@ package com.scriptor.core.terminal;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import static javax.swing.JOptionPane.WARNING_MESSAGE;
-import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.JOptionPane.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -21,7 +20,6 @@ import com.scriptor.core.gui.components.JExtendedTextField;
 public class ScriptorTerminal extends JPanel {
     private Scriptor scriptor;
     private JTextPane terminalArea;
-    private JExtendedTextField commandTextField;
     private JTextField dirPathLabel;
 
     private String currentDirectory = "";
@@ -33,6 +31,8 @@ public class ScriptorTerminal extends JPanel {
     private int commandsIndex = -1;
 
     private boolean awaitingInput = false;
+
+    public JExtendedTextField commandTextField;
 
     public ScriptorTerminal(Scriptor scriptor, String dirPath) {
         this.scriptor = scriptor;
@@ -320,7 +320,7 @@ public class ScriptorTerminal extends JPanel {
 
     public void restartProcess() {
         if (commands.size() == 0) {
-            showMessageDialog(scriptor, "There are no previous commands for this terminal.", "No Commands History",
+            showMessageDialog(scriptor, "The commands history for this terminal is empty.", "Terminal Commands History",
                     WARNING_MESSAGE);
 
             return;
@@ -343,5 +343,9 @@ public class ScriptorTerminal extends JPanel {
         terminalArea.setText("");
 
         appendPrompt();
+    }
+
+    public List<String> getCommands() {
+        return this.commands;
     }
 }

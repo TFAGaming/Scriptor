@@ -65,6 +65,10 @@ public class ScriptorTerminalTabManager {
         }
     }
 
+    public int getIndex() {
+        return tabbedPane.getSelectedIndex();
+    }
+
     private void addCloseButton() {
         int index = tabbedPane.getTabCount() - 1;
 
@@ -78,6 +82,7 @@ public class ScriptorTerminalTabManager {
         closeButton.setFocusable(false);
         closeButton.setBorder(BorderFactory.createEmptyBorder());
         closeButton.setContentAreaFilled(false);
+        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         closeButton.addActionListener(new ActionListener() {
             @Override

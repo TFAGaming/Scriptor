@@ -641,6 +641,7 @@ public class ScriptorTextAreaTabManager {
         closeButton.setFocusable(false);
         closeButton.setBorder(BorderFactory.createEmptyBorder());
         closeButton.setContentAreaFilled(false);
+        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         closeButton.addActionListener(new ActionListener() {
             @Override

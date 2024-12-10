@@ -30,7 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ScriptorFilesExplorer extends JPanel {
+public class ScriptorFileExplorer extends JPanel {
     private Scriptor scriptor;
 
     private JTree fileTree;
@@ -42,7 +42,7 @@ public class ScriptorFilesExplorer extends JPanel {
     private String rootPath = "";
     private int filesCounter = 0;
 
-    public ScriptorFilesExplorer(Scriptor scriptor, String rootPath) {
+    public ScriptorFileExplorer(Scriptor scriptor, String rootPath) {
         this.rootPath = rootPath;
         this.scriptor = scriptor;
 
@@ -65,6 +65,24 @@ public class ScriptorFilesExplorer extends JPanel {
         fileTree.addMouseListener(new RightClickMouseListener());
         fileTree.addMouseListener(new LeftClickMouseListener());
         fileTree.addTreeExpansionListener(new FolderExpansionListener());
+        fileTree.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                TreePath path = fileTree.getPathForLocation(e.getX(), e.getY());
+                if (path != null) {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                    if (node.getUserObject() instanceof FileNode) {
+                        FileNode fileNode = (FileNode) node.getUserObject();
+                        if (fileNode.getFile().isFile() || fileNode.getFile().isDirectory()) {
+                            fileTree.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                            return;
+                        }
+                    }
+                }
+
+                fileTree.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
     }
 
     public void setPath(String newPath) {
@@ -284,19 +302,16 @@ public class ScriptorFilesExplorer extends JPanel {
             File file = fileNode.getFile();
 
             if (file.isFile()) {
-                setIcon(ScriptorFilesExplorer.this.getFileIcon(file));
-                setFocusable(false);
+                setIcon(ScriptorFileExplorer.this.getFileIcon(file));
             } else if (file.isDirectory()) {
                 try (Stream<Path> files = Files.list(file.toPath())) {
                     long count = files.count();
 
                     if (count == 0) {
-                        setIcon(ScriptorFilesExplorer.this.getFolderIcon(true));
-                        setFocusable(false);
+                        setIcon(ScriptorFileExplorer.this.getFolderIcon(true));
                     } else {
-                        setClosedIcon(ScriptorFilesExplorer.this.getFolderIcon(true));
-                        setOpenIcon(ScriptorFilesExplorer.this.getFolderIcon(false));
-                        setFocusable(false);
+                        setClosedIcon(ScriptorFileExplorer.this.getFolderIcon(true));
+                        setOpenIcon(ScriptorFileExplorer.this.getFolderIcon(false));
                     }
                 } catch (IOException e) {
 

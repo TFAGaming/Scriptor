@@ -7,10 +7,13 @@ import javax.swing.text.BadLocationException;
 import org.fife.ui.rsyntaxtextarea.*;
 
 import com.scriptor.core.config.ScriptorConfig;
+import com.scriptor.core.gui.components.ClosableComponentType;
+import com.scriptor.core.gui.components.JClosableComponent;
 import com.scriptor.core.gui.frames.ScriptorWhatsNew;
 import com.scriptor.core.gui.menus.ScriptorMenubar;
-import com.scriptor.core.gui.panels.ScriptorFilesExplorer;
-import com.scriptor.core.gui.toolbar.ScriptorToolbar;
+import com.scriptor.core.gui.panels.ScriptorFileExplorer;
+import com.scriptor.core.gui.toolbar.ScriptorPrimaryToolbar;
+import com.scriptor.core.gui.toolbar.ScriptorTerminalToolbar;
 import com.scriptor.core.managers.ScriptorTerminalTabManager;
 import com.scriptor.core.managers.ScriptorTextAreaTabManager;
 import com.scriptor.core.plugins.ScriptorPluginsHandler;
@@ -22,6 +25,7 @@ import java.awt.event.*;
 import java.io.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Scriptor extends JFrame implements ActionListener {
@@ -30,10 +34,16 @@ public class Scriptor extends JFrame implements ActionListener {
     public JTabbedPane textAreaTabPane;
     public JTabbedPane terminalTabPane;
     public JLabel statusBarLabel;
-    public ScriptorFilesExplorer filesExplorer;
+
+    public JSplitPane primarySplitPane;
+    public JSplitPane secondarySplitPane;
+
+    public ScriptorFileExplorer filesExplorer;
     public ScriptorPluginsHandler pluginsHandler = new ScriptorPluginsHandler("plugins");
     public ScriptorTextAreaTabManager textAreaTabManager;
     public ScriptorTerminalTabManager terminalTabManager;
+
+    public List<JClosableComponent> removedComponents = new ArrayList<JClosableComponent>();
 
     public Scriptor() {
         logger.clearAll();
@@ -44,7 +54,8 @@ public class Scriptor extends JFrame implements ActionListener {
         setSize(1600, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        setBackground(Color.decode((String) pluginsHandler.getMergedConfig().get("frame.background.color")));
+        // setBackground(Color.decode((String)
+        // pluginsHandler.getMergedConfig().get("frame.background.color")));
 
         setIconImage(getIcon("scriptor_icon.png").getImage());
 
@@ -52,38 +63,49 @@ public class Scriptor extends JFrame implements ActionListener {
 
         // Tab panes
         textAreaTabPane = new JTabbedPane();
-        textAreaTabPane.setBackground(
-                Color.decode((String) pluginsHandler.getMergedConfig().get("textarea.background.color")));
+        // textAreaTabPane.setBackground(
+        // Color.decode((String)
+        // pluginsHandler.getMergedConfig().get("textarea.background.color")));
         textAreaTabPane.setFocusable(false);
 
         textAreaTabManager = new ScriptorTextAreaTabManager(this, this.textAreaTabPane);
 
         terminalTabPane = new JTabbedPane();
-        terminalTabPane.setBackground(
-                Color.decode((String) pluginsHandler.getMergedConfig().get("textarea.background.color")));
+        // terminalTabPane.setBackground(
+        // Color.decode((String)
+        // pluginsHandler.getMergedConfig().get("textarea.background.color")));
         terminalTabPane.setFocusable(false);
 
         terminalTabManager = new ScriptorTerminalTabManager(this, this.terminalTabPane);
 
         // Files explorer
-        filesExplorer = new ScriptorFilesExplorer(this, config.getDirectoryPath() == null
+        filesExplorer = new ScriptorFileExplorer(this, config.getDirectoryPath() == null
                 ? System.getProperty("user.dir")
                 : config.getDirectoryPath());
-        
+
         // Menu bar
         setJMenuBar(new ScriptorMenubar(this));
 
         // Toolbar
-        ScriptorToolbar toolBar = new ScriptorToolbar(this);
+        ScriptorPrimaryToolbar toolBar = new ScriptorPrimaryToolbar(this);
 
         add(toolBar, BorderLayout.NORTH);
 
+        List<JComponent> __components = new ArrayList<JComponent>();
+        __components.add(new ScriptorTerminalToolbar(this));
+
         // Split panes
-        JSplitPane primarySplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textAreaTabPane, terminalTabPane);
+        primarySplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textAreaTabPane, new JClosableComponent(this, ClosableComponentType.TERMINAL, __components, terminalTabPane));
         primarySplitPane.setResizeWeight(0.5);
         primarySplitPane.setDividerLocation(0.3);
 
-        JSplitPane secondarySplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filesExplorer,
+        JLabel __label1 = new JLabel("File System Tree");
+
+        List<JComponent> __components1 = new ArrayList<JComponent>();
+        __components1.add(__label1);
+
+        secondarySplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                new JClosableComponent(this, ClosableComponentType.FILE_EXPLORER, __components1, filesExplorer),
                 primarySplitPane);
         secondarySplitPane.setResizeWeight(0.1);
         secondarySplitPane.setDividerLocation(0.8);
@@ -207,6 +229,37 @@ public class Scriptor extends JFrame implements ActionListener {
         ImageIcon icon = new ImageIcon("resources/" + iconName);
 
         return icon;
+    }
+
+    public void addBackComponent(int type) {
+        if (!removedComponents.isEmpty()) {
+            for (int i = 0; i < removedComponents.size(); i++) {
+                JClosableComponent component = removedComponents.get(i);
+
+                if (component.getType() != type) {
+                    continue;
+                }
+
+                switch (type) {
+                    case ClosableComponentType.FILE_EXPLORER:
+                        removedComponents.remove(i);
+
+                        secondarySplitPane.add(component);
+                        secondarySplitPane.revalidate();
+                        secondarySplitPane.repaint();
+                        break;
+                    case ClosableComponentType.TERMINAL:
+                        removedComponents.remove(i);
+
+                        primarySplitPane.add(component);
+                        primarySplitPane.revalidate();
+                        primarySplitPane.repaint();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     @Override

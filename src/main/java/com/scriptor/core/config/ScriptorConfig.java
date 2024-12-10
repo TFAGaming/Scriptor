@@ -41,6 +41,10 @@ public class ScriptorConfig {
         }
     }
 
+    /*
+        Get
+     */
+
     public boolean getShowWhatsNewOnStartUp() {
         return structure.getShowWhatsNewOnStartUp();
     }
@@ -65,6 +69,10 @@ public class ScriptorConfig {
         return structure.getExpandedFolders();
     }
     
+    /*
+      Set
+     */
+
     public void setShowWhatsNewOnStartUp(boolean value) {
         structure.setShowWhatsNewOnStartUp(value);
 
