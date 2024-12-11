@@ -47,9 +47,9 @@ public class ScriptorTerminal extends JPanel {
 
         terminalArea = new JTextPane();
         terminalArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        terminalArea.setBackground(Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.background.color")));
-        terminalArea.setForeground(Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.foreground.color")));
-        terminalArea.setCaretColor(Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.caretcolor.color")));
+        terminalArea.setBackground(Color.decode("#FFFFFF"));
+        terminalArea.setForeground(Color.decode("#000000"));
+        terminalArea.setCaretColor(Color.decode("#000000"));
         terminalArea.setEditable(false);
 
         JScrollPane scrollPane = new JScrollPane(terminalArea);
@@ -61,7 +61,6 @@ public class ScriptorTerminal extends JPanel {
 
         commandTextField = new JExtendedTextField(16);
         commandTextField.setPlaceholder("Type a command or send an input for an active process.");
-        commandTextField.setToolTipText("Write a command, and if necessary, send normal inputs if a process requires an input from the user.");
 
         commandTextField.addKeyListener(new KeyAdapter() {
             @Override
@@ -72,7 +71,7 @@ public class ScriptorTerminal extends JPanel {
                     String command = commandTextField.getText();
 
                     if (!awaitingInput && isAlive()) {
-                        appendToTerminal(command + "\n", Color.decode((String) scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+                        appendToTerminal(command + "\n", Color.decode("#000000"));
 
                         try {
                             commandTextField.setText("");
@@ -85,7 +84,7 @@ public class ScriptorTerminal extends JPanel {
                     } else if (!awaitingInput && !isAlive()) {
                         commandTextField.setText("");
 
-                        appendToTerminal(command + "\n", Color.decode((String) scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+                        appendToTerminal(command + "\n", Color.decode("#000000"));
 
                         executeCommand(command);
                     }
@@ -132,7 +131,7 @@ public class ScriptorTerminal extends JPanel {
         add(secondaryPanel, BorderLayout.SOUTH);
 
         appendPrompt();
-        appendToTerminal("Path: " + dirPath + "\n", Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+        appendToTerminal("Path: " + dirPath + "\n", Color.decode("#000000"));
         appendPrompt();
 
         terminalArea.addMouseListener(new MouseListener() {
@@ -187,7 +186,7 @@ public class ScriptorTerminal extends JPanel {
         } else if (command.trim().startsWith("cd")) {
             changeDirectory(command);
         } else if (command.trim().startsWith("path")) {
-            appendToTerminal("Process directory path: " + currentDirectory + "\n", Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+            appendToTerminal("Process directory path: " + currentDirectory + "\n", Color.decode("#000000"));
             appendPrompt();
         } else {
             try {
@@ -214,11 +213,11 @@ public class ScriptorTerminal extends JPanel {
 
                                 buffer.setLength(0);
 
-                                SwingUtilities.invokeLater(() -> appendToTerminal(outputLine, Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color"))));
+                                SwingUtilities.invokeLater(() -> appendToTerminal(outputLine, Color.decode("#000000")));
                             } else {
                                 final String partialOutput = buffer.toString();
 
-                                SwingUtilities.invokeLater(() -> appendToTerminal(partialOutput, Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color"))));
+                                SwingUtilities.invokeLater(() -> appendToTerminal(partialOutput, Color.decode("#000000")));
 
                                 buffer.setLength(0);
                             }
@@ -234,7 +233,7 @@ public class ScriptorTerminal extends JPanel {
                     try {
                         currentProcess.waitFor();
                         SwingUtilities.invokeLater(() -> {
-                            appendToTerminal("\n", Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+                            appendToTerminal("\n", Color.decode("#000000"));
                             appendPrompt();
                         });
                     } catch (InterruptedException e) {
@@ -252,7 +251,7 @@ public class ScriptorTerminal extends JPanel {
     private void changeDirectory(String command) {
         String[] parts = command.trim().split("\\s+");
         if (parts.length < 2) {
-            appendToTerminal("Missing arguments.\n", Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+            appendToTerminal("Missing arguments.\n", Color.decode("#000000"));
             return;
         }
 
@@ -274,10 +273,10 @@ public class ScriptorTerminal extends JPanel {
         if (dir != null && dir.exists() && dir.isDirectory()) {
             currentDirectory = dir.getAbsolutePath();
 
-            appendToTerminal("Changed directory path to: " + currentDirectory + "\n", Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+            appendToTerminal("Changed directory path to: " + currentDirectory + "\n", Color.decode("#000000"));
             appendPrompt();
         } else {
-            appendToTerminal("No such directory: " + newPath + "\n", Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+            appendToTerminal("No such directory: " + newPath + "\n", Color.decode("#000000"));
             appendPrompt();
         }
     }
@@ -307,7 +306,7 @@ public class ScriptorTerminal extends JPanel {
     }
 
     private void appendPrompt() {
-        appendToTerminal("terminal@scriptor~ ", Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.prompttext.color")));
+        appendToTerminal("terminal@scriptor~ ", Color.decode("#808080"));
     }
 
     public void closeProcess() {
@@ -328,7 +327,7 @@ public class ScriptorTerminal extends JPanel {
 
         closeProcess();
 
-        appendToTerminal(commands.get(commands.size() - 1) + "\n", Color.decode((String) this.scriptor.pluginsHandler.getMergedConfig().get("terminalarea.text.color")));
+        appendToTerminal(commands.get(commands.size() - 1) + "\n", Color.decode("#000000"));
 
         executeCommand(commands.get(commands.size() - 1));
     }

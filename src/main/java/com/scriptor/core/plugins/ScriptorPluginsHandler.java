@@ -2,6 +2,8 @@ package com.scriptor.core.plugins;
 
 import org.json.*;
 
+import com.scriptor.core.plugins.config.ScriptorPluginConfig;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

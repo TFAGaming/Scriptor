@@ -1,12 +1,17 @@
 package com.scriptor.core.gui.menus;
 
+import static javax.swing.JOptionPane.*;
+
 import java.awt.event.*;
 
 import javax.swing.*;
 
+import org.apache.commons.io.FilenameUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import com.scriptor.Scriptor;
+import com.scriptor.core.gui.components.JClosableComponentType;
+import com.scriptor.core.gui.frames.ScriptorMarkdownViewer;
 
 public class ScriptorMenubar extends JMenuBar {
     public ScriptorMenubar(Scriptor scriptor) {
@@ -33,7 +38,8 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemOpenFolder = createMenuItem("Open Folder", scriptor.getIcon("folder_open.png"), TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemOpenFolder = createMenuItem("Open Folder", scriptor.getIcon("folder_open.png"),
+                TOOL_TIP_TEXT_KEY, null);
         menuItemOpenFolder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -59,7 +65,8 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemSaveAll = createMenuItem("Save All", scriptor.getIcon("saveall.gif"), TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemSaveAll = createMenuItem("Save All", scriptor.getIcon("saveall.gif"), TOOL_TIP_TEXT_KEY,
+                null);
         menuItemSaveAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,7 +74,8 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemCloseTab = createMenuItem("Close Tab", scriptor.getIcon("close_tab.png"), TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemCloseTab = createMenuItem("Close Tab", scriptor.getIcon("close_tab.png"), TOOL_TIP_TEXT_KEY,
+                null);
         menuItemCloseTab.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -79,7 +87,8 @@ public class ScriptorMenubar extends JMenuBar {
             }
         });
 
-        JMenuItem menuItemCloseAllTabs = createMenuItem("Close All Tabs", scriptor.getIcon("close_all_tabs.png"), TOOL_TIP_TEXT_KEY, null);
+        JMenuItem menuItemCloseAllTabs = createMenuItem("Close All Tabs", scriptor.getIcon("close_all_tabs.png"),
+                TOOL_TIP_TEXT_KEY, null);
         menuItemCloseAllTabs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -169,9 +178,9 @@ public class ScriptorMenubar extends JMenuBar {
         menuItemDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //RSyntaxTextArea textArea = scriptor.getCurrentTextArea();
+                RSyntaxTextArea textArea = scriptor.textAreaTabManager.getCurrentTextArea();
 
-                // TODO Delete word
+                textArea.replaceSelection("");
             }
         });
 
@@ -195,8 +204,66 @@ public class ScriptorMenubar extends JMenuBar {
         editMenu.add(menuItemDelete);
         editMenu.add(menuItemSelectAll);
 
+        /*
+         * View menu
+         */
+
+        JMenu viewMenu = new JMenu("View");
+
+        JMenuItem menuItemOpenExplorer = createMenuItem("Open Explorer", scriptor.getIcon("tree_explorer.gif"),
+                TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK + KeyEvent.SHIFT_DOWN_MASK));
+        menuItemOpenExplorer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scriptor.addBackComponent(JClosableComponentType.FILE_EXPLORER);
+            }
+        });
+
+        JMenuItem menuItemOpenTerminal = createMenuItem("Open Terminal", scriptor.getIcon("console.gif"),
+                TOOL_TIP_TEXT_KEY,
+                KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK + KeyEvent.SHIFT_DOWN_MASK));
+        menuItemOpenTerminal.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scriptor.addBackComponent(JClosableComponentType.TERMINAL);
+            }
+        });
+
+        JMenuItem menuItemMarkdownViewer = createMenuItem("Markdown Viewer", scriptor.getIcon("markdown_viewer.png"),
+                TOOL_TIP_TEXT_KEY, null);
+        menuItemMarkdownViewer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String path = scriptor.textAreaTabManager.getCurrentPath();
+
+                if (path != null) {
+                    String extension = FilenameUtils.getExtension(path);
+
+                    if (extension.equalsIgnoreCase("md") || extension.equalsIgnoreCase("markdown")
+                            || extension.equalsIgnoreCase("txt")) {
+                        new ScriptorMarkdownViewer(scriptor, path);
+                    } else {
+                        showMessageDialog(scriptor, "The current file is not a markdown or a plain text file.",
+                                "Markdown Viewer",
+                                WARNING_MESSAGE);
+                    }
+                }
+            }
+        });
+
+        viewMenu.add(menuItemOpenExplorer);
+        viewMenu.add(menuItemOpenTerminal);
+        viewMenu.addSeparator();
+        viewMenu.add(menuItemMarkdownViewer);
+
+        /*
+         * End
+         */
+
         add(fileMenu);
         add(editMenu);
+        add(viewMenu);
     }
 
     private JMenuItem createMenuItem(String text, ImageIcon menuItemIcon, String tooltip, KeyStroke accelerator) {

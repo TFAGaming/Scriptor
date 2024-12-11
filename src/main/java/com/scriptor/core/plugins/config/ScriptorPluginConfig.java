@@ -1,4 +1,4 @@
-package com.scriptor.core.plugins;
+package com.scriptor.core.plugins.config;
 
 import org.json.JSONObject;
 

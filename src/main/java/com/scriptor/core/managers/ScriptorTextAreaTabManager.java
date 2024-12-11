@@ -623,6 +623,19 @@ public class ScriptorTextAreaTabManager {
             }
         });
 
+        textArea.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0) {
+                    if (e.getWheelRotation() < 0) {
+                        scriptor.textAreaTabManager.zoomIn();
+                    } else if (e.getWheelRotation() > 0) {
+                        scriptor.textAreaTabManager.zoomOut();
+                    }
+                }
+            }
+        });
+
         arrayTextAreas.add(textArea);
 
         return scrollPane;

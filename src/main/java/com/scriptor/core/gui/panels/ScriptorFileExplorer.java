@@ -389,7 +389,17 @@ public class ScriptorFileExplorer extends JPanel {
     private JPopupMenu createFolderContextMenu(String path) {
         JPopupMenu folderContextMenu = new JPopupMenu();
 
+        JMenuItem refreshTree = new JMenuItem("Refresh Explorer");
+        refreshTree.setIcon(scriptor.getIcon("refresh.gif"));
+        refreshTree.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refreshTree();
+            }
+        });
+
         JMenuItem createFileItem = new JMenuItem("New File");
+        createFileItem.setIcon(scriptor.getIcon("new_file.png"));
         createFileItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -398,6 +408,7 @@ public class ScriptorFileExplorer extends JPanel {
         });
 
         JMenuItem createFolderItem = new JMenuItem("New Folder");
+        createFolderItem.setIcon(scriptor.getIcon("new_folder.gif"));
         createFolderItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -406,7 +417,7 @@ public class ScriptorFileExplorer extends JPanel {
         });
 
         JMenuItem renameItem = new JMenuItem("Rename...");
-
+        renameItem.setIcon(scriptor.getIcon("rename.gif"));
         renameItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -415,6 +426,7 @@ public class ScriptorFileExplorer extends JPanel {
         });
 
         JMenuItem deleteItem = new JMenuItem("Delete");
+        deleteItem.setIcon(scriptor.getIcon("trash.gif"));
         deleteItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -427,6 +439,8 @@ public class ScriptorFileExplorer extends JPanel {
             deleteItem.setEnabled(false);
         }
 
+        folderContextMenu.add(refreshTree);
+        folderContextMenu.addSeparator();
         folderContextMenu.add(createFileItem);
         folderContextMenu.add(createFolderItem);
         folderContextMenu.addSeparator();
@@ -439,7 +453,17 @@ public class ScriptorFileExplorer extends JPanel {
     private JPopupMenu createFileContextMenu() {
         JPopupMenu fileContextMenu = new JPopupMenu();
 
+        JMenuItem refreshTree = new JMenuItem("Refresh Explorer");
+        refreshTree.setIcon(scriptor.getIcon("refresh.gif"));
+        refreshTree.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refreshTree();
+            }
+        });
+
         JMenuItem renameItem = new JMenuItem("Rename...");
+        renameItem.setIcon(scriptor.getIcon("rename.gif"));
         renameItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -448,6 +472,7 @@ public class ScriptorFileExplorer extends JPanel {
         });
 
         JMenuItem deleteItem = new JMenuItem("Delete");
+        deleteItem.setIcon(scriptor.getIcon("trash.gif"));
         deleteItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -455,6 +480,8 @@ public class ScriptorFileExplorer extends JPanel {
             }
         });
 
+        fileContextMenu.add(refreshTree);
+        fileContextMenu.addSeparator();
         fileContextMenu.add(renameItem);
         fileContextMenu.add(deleteItem);
 

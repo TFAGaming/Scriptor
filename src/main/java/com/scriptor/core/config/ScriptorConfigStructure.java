@@ -9,6 +9,8 @@ public class ScriptorConfigStructure {
     private boolean extended;
     private int zoom;
     private List<String> expandedFolders;
+    private List<Double> windowPosition;
+    private List<Double> windowSize;
 
     public boolean getShowWhatsNewOnStartUp() { return showWhatsNewOnStartUp; }
     public void setShowWhatsNewOnStartUp(boolean value) { this.showWhatsNewOnStartUp = value; }
@@ -27,4 +29,10 @@ public class ScriptorConfigStructure {
 
     public List<String> getExpandedFolders() { return expandedFolders; }
     public void setExpandedFolders(List<String> folders) { this.expandedFolders = folders; }
+
+    public List<Double> getWindowPosition() { return windowPosition; }
+    public void setWindowPosition(List<Double> position) { this.windowPosition = position; }
+
+    public List<Double> getWindowSize() { return windowSize; }
+    public void setWindowSize(List<Double> size) { this.windowSize = size; }
 }

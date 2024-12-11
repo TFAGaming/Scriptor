@@ -7,13 +7,15 @@ import javax.swing.text.BadLocationException;
 import org.fife.ui.rsyntaxtextarea.*;
 
 import com.scriptor.core.config.ScriptorConfig;
-import com.scriptor.core.gui.components.ClosableComponentType;
 import com.scriptor.core.gui.components.JClosableComponent;
+import com.scriptor.core.gui.components.JClosableComponentType;
 import com.scriptor.core.gui.frames.ScriptorWhatsNew;
 import com.scriptor.core.gui.menus.ScriptorMenubar;
+import com.scriptor.core.gui.others.ScriptorNotificiation;
 import com.scriptor.core.gui.panels.ScriptorFileExplorer;
 import com.scriptor.core.gui.toolbar.ScriptorPrimaryToolbar;
 import com.scriptor.core.gui.toolbar.ScriptorTerminalToolbar;
+import com.scriptor.core.managers.ScriptorNotificationsManager;
 import com.scriptor.core.managers.ScriptorTerminalTabManager;
 import com.scriptor.core.managers.ScriptorTextAreaTabManager;
 import com.scriptor.core.plugins.ScriptorPluginsHandler;
@@ -33,7 +35,7 @@ public class Scriptor extends JFrame implements ActionListener {
     public ScriptorLogger logger = new ScriptorLogger();
     public JTabbedPane textAreaTabPane;
     public JTabbedPane terminalTabPane;
-    public JLabel statusBarLabel;
+    public JPanel statusBarPanel;
 
     public JSplitPane primarySplitPane;
     public JSplitPane secondarySplitPane;
@@ -42,6 +44,7 @@ public class Scriptor extends JFrame implements ActionListener {
     public ScriptorPluginsHandler pluginsHandler = new ScriptorPluginsHandler("plugins");
     public ScriptorTextAreaTabManager textAreaTabManager;
     public ScriptorTerminalTabManager terminalTabManager;
+    public ScriptorNotificationsManager notificationsManager = new ScriptorNotificationsManager(this, new ArrayList<ScriptorNotificiation>());
 
     public List<JClosableComponent> removedComponents = new ArrayList<JClosableComponent>();
 
@@ -51,7 +54,7 @@ public class Scriptor extends JFrame implements ActionListener {
         pluginsHandler.loadPlugins();
 
         setTitle("Scriptor");
-        setSize(1600, 800);
+        setSize(1400, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // setBackground(Color.decode((String)
@@ -63,17 +66,11 @@ public class Scriptor extends JFrame implements ActionListener {
 
         // Tab panes
         textAreaTabPane = new JTabbedPane();
-        // textAreaTabPane.setBackground(
-        // Color.decode((String)
-        // pluginsHandler.getMergedConfig().get("textarea.background.color")));
         textAreaTabPane.setFocusable(false);
 
         textAreaTabManager = new ScriptorTextAreaTabManager(this, this.textAreaTabPane);
 
         terminalTabPane = new JTabbedPane();
-        // terminalTabPane.setBackground(
-        // Color.decode((String)
-        // pluginsHandler.getMergedConfig().get("textarea.background.color")));
         terminalTabPane.setFocusable(false);
 
         terminalTabManager = new ScriptorTerminalTabManager(this, this.terminalTabPane);
@@ -95,7 +92,8 @@ public class Scriptor extends JFrame implements ActionListener {
         __components.add(new ScriptorTerminalToolbar(this));
 
         // Split panes
-        primarySplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textAreaTabPane, new JClosableComponent(this, ClosableComponentType.TERMINAL, __components, terminalTabPane));
+        primarySplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textAreaTabPane,
+                new JClosableComponent(this, JClosableComponentType.TERMINAL, __components, terminalTabPane));
         primarySplitPane.setResizeWeight(0.5);
         primarySplitPane.setDividerLocation(0.3);
 
@@ -105,7 +103,7 @@ public class Scriptor extends JFrame implements ActionListener {
         __components1.add(__label1);
 
         secondarySplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                new JClosableComponent(this, ClosableComponentType.FILE_EXPLORER, __components1, filesExplorer),
+                new JClosableComponent(this, JClosableComponentType.FILE_EXPLORER, __components1, filesExplorer),
                 primarySplitPane);
         secondarySplitPane.setResizeWeight(0.1);
         secondarySplitPane.setDividerLocation(0.8);
@@ -113,17 +111,51 @@ public class Scriptor extends JFrame implements ActionListener {
         add(secondarySplitPane);
 
         // Status bar
-        statusBarLabel = new JLabel("Getting ready...");
+        statusBarPanel = new JPanel(new BorderLayout());
+
+        JLabel statusBarLabel = new JLabel("Getting ready...");
         statusBarLabel.setBorder(new EmptyBorder(5, 5, 5, 0));
 
-        add(statusBarLabel, BorderLayout.SOUTH);
+        JButton statusBarNotificationButton = new JButton();
+        statusBarNotificationButton.setIcon(getIcon("notification.png"));
+        statusBarNotificationButton.setBorderPainted(false);
+        statusBarNotificationButton.setFocusPainted(false);
+        statusBarNotificationButton.setContentAreaFilled(false);
+        statusBarNotificationButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        statusBarNotificationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (notificationsManager.isHidden()) {
+                    notificationsManager.showNotifications(statusBarNotificationButton);
+                } else {
+                    notificationsManager.hideNotifications();
+                }
+            }
+        });
+
+        statusBarPanel.add(statusBarNotificationButton, BorderLayout.EAST);
+        statusBarPanel.add(statusBarLabel, BorderLayout.WEST);
+
+        add(statusBarPanel, BorderLayout.SOUTH);
 
         // Window position and size
         if (config.getExtended()) {
             setExtendedState(MAXIMIZED_BOTH);
-        }
+        } else {
+            Dimension windowSize = config.getWindowSize();
 
-        setLocationRelativeTo(null);
+            if (windowSize != null) {
+                setSize(windowSize);
+            }
+
+            Point windowPosition = config.getWindowPosition();
+
+            if (windowPosition == null) {
+                setLocationRelativeTo(null);
+            } else {
+                setLocation(windowPosition);
+            }
+        }
 
         // Events
         addWindowStateListener(new WindowStateListener() {
@@ -146,7 +178,11 @@ public class Scriptor extends JFrame implements ActionListener {
             public void windowClosing(WindowEvent e) {
                 List<String> expandedFolders = filesExplorer.getExpandedFolders();
 
+                System.out.println(getSize());
+
                 config.setExpandedFolders(expandedFolders);
+                config.setWindowSize(getSize());
+                config.setWindowPosition(getLocation());
             }
         });
 
@@ -160,6 +196,11 @@ public class Scriptor extends JFrame implements ActionListener {
         }
 
         updateStatusBar();
+
+        notificationsManager.newNotification(new ScriptorNotificiation("Ready!", "Scriptor is now ready to use."));
+        notificationsManager.newNotification(new ScriptorNotificiation("Example 1", "Example description 1"));
+        notificationsManager.newNotification(new ScriptorNotificiation("Example 2", "Example description 2"));
+        notificationsManager.newNotification(new ScriptorNotificiation("Example 3", "Example description 3"));
     }
 
     public static void main(String[] args) {
@@ -220,9 +261,15 @@ public class Scriptor extends JFrame implements ActionListener {
             language = Utils.getLanguageByFileExtension(fileExtension);
         }
 
-        statusBarLabel.setText(language + " | Length: " + textArea.getText().trim().length() + ", Lines: "
+        String newLabelText = language + " | Length: " + textArea.getText().trim().length() + ", Lines: "
                 + textArea.getText().trim().split("\n").length + " | Line: " + lineNumber + ", Column: " + column
-                + " | Zoom: " + config.getZoom() + ", Encoding: UTF-8");
+                + " | Zoom: " + config.getZoom() + ", Encoding: UTF-8";
+
+        for (Component component : statusBarPanel.getComponents()) {
+            if (component instanceof JLabel) {
+                ((JLabel) component).setText(newLabelText);
+            }
+        }
     }
 
     public ImageIcon getIcon(String iconName) {
@@ -241,19 +288,23 @@ public class Scriptor extends JFrame implements ActionListener {
                 }
 
                 switch (type) {
-                    case ClosableComponentType.FILE_EXPLORER:
+                    case JClosableComponentType.FILE_EXPLORER:
                         removedComponents.remove(i);
 
                         secondarySplitPane.add(component);
                         secondarySplitPane.revalidate();
                         secondarySplitPane.repaint();
+
+                        secondarySplitPane.setDividerSize(5);
                         break;
-                    case ClosableComponentType.TERMINAL:
+                    case JClosableComponentType.TERMINAL:
                         removedComponents.remove(i);
 
                         primarySplitPane.add(component);
                         primarySplitPane.revalidate();
                         primarySplitPane.repaint();
+
+                        primarySplitPane.setDividerSize(5);
                         break;
                     default:
                         break;

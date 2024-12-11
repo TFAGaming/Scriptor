@@ -7,6 +7,7 @@ import org.json.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.scriptor.core.plugins.config.ScriptorPluginConfig;
 
 public class ScriptorPlugin {
     private final JSONObject json;

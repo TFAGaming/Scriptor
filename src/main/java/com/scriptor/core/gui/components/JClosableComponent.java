@@ -45,12 +45,24 @@ public class JClosableComponent extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Container parent = JClosableComponent.this.getParent();
+
                 if (parent != null) {
                     parent.remove(JClosableComponent.this);
                     parent.revalidate();
                     parent.repaint();
 
                     scriptor.removedComponents.add(JClosableComponent.this);
+
+                    switch (JClosableComponent.this.getType()) {
+                        case JClosableComponentType.FILE_EXPLORER:
+                            scriptor.secondarySplitPane.setDividerSize(0);
+                            break;
+                        case JClosableComponentType.TERMINAL:
+                            scriptor.primarySplitPane.setDividerSize(0);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         });

@@ -13,7 +13,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import com.scriptor.Scriptor;
 import com.scriptor.Utils;
 import com.scriptor.core.gui.frames.ScriptorSettings;
-import com.scriptor.core.gui.components.ClosableComponentType;
+import com.scriptor.core.gui.components.JClosableComponentType;
 import com.scriptor.core.gui.frames.ScriptorFindAndReplace;
 
 public class ScriptorPrimaryToolbar extends JToolBar {
@@ -51,22 +51,6 @@ public class ScriptorPrimaryToolbar extends JToolBar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 scriptor.textAreaTabManager.saveAllTabs();
-            }
-        });
-
-        JButton buttonTreeExplorerToggle = createButton(getIcon("tree_explorer.gif"), "Toggle File Explorer");
-        buttonTreeExplorerToggle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                scriptor.addBackComponent(ClosableComponentType.FILE_EXPLORER);
-            }
-        });
-
-        JButton buttonTerminalToggle = createButton(getIcon("console.gif"), "Toggle Terminal");
-        buttonTerminalToggle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                scriptor.addBackComponent(ClosableComponentType.TERMINAL);
             }
         });
 
@@ -155,6 +139,22 @@ public class ScriptorPrimaryToolbar extends JToolBar {
                 if (textArea != null) {
                     new ScriptorFindAndReplace(scriptor, textArea);
                 }
+            }
+        });
+
+        JButton buttonTreeExplorerToggle = createButton(getIcon("tree_explorer.gif"), "Toggle File Explorer");
+        buttonTreeExplorerToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scriptor.addBackComponent(JClosableComponentType.FILE_EXPLORER);
+            }
+        });
+
+        JButton buttonTerminalToggle = createButton(getIcon("console.gif"), "Toggle Terminal");
+        buttonTerminalToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scriptor.addBackComponent(JClosableComponentType.TERMINAL);
             }
         });
 
