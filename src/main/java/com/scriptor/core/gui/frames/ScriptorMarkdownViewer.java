@@ -10,6 +10,8 @@ import com.scriptor.Scriptor;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ScriptorMarkdownViewer extends JFrame {
     private Scriptor scriptor;
@@ -21,7 +23,6 @@ public class ScriptorMarkdownViewer extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
 
         setIconImage(this.scriptor.getIcon("scriptor_icon.png").getImage());
 
@@ -47,7 +48,7 @@ public class ScriptorMarkdownViewer extends JFrame {
 
                 String markdownText = sb.toString();
 
-                editorPane.setText(convertToMarkdown(markdownText));
+                editorPane.setText(convertToMarkdown(markdownText, readFile("./resources/github.css")));
             } finally {
                 br.close();
             }
@@ -58,12 +59,30 @@ public class ScriptorMarkdownViewer extends JFrame {
         setVisible(true);
     }
 
-    public String convertToMarkdown(String markdownText) {
+    public String convertToMarkdown(String markdownText, String css) {
         Parser parser = Parser.builder().build();
         Node document = parser.parse(markdownText);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
-        String htmlText = renderer.render(document);
 
-        return htmlText;
+        String htmlContent = renderer.render(document);
+
+        String styledHtml = """
+                <html>
+                <head>
+                <style>
+                %s
+                </style>
+                </head>
+                <body>
+                %s
+                </body>
+                </html>
+                """.formatted(css, htmlContent);
+
+        return styledHtml;
+    }
+
+    private String readFile(String filePath) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(filePath)));
     }
 }

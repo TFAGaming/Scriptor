@@ -15,7 +15,7 @@ public class ScriptorConfig {
     public ScriptorConfig(String filePath) {
         this.filePath = filePath;
         ObjectMapper objectMapper = new ObjectMapper();
-        
+
         try {
             structure = objectMapper.readValue(new File(filePath), ScriptorConfigStructure.class);
         } catch (FileNotFoundException e) {
@@ -32,7 +32,7 @@ public class ScriptorConfig {
 
                 setDefault();
             } catch (IOException e1) {
-                
+
             }
         } catch (StreamReadException e) {
             e.printStackTrace();
@@ -44,7 +44,7 @@ public class ScriptorConfig {
     }
 
     /*
-        Get
+     * Get
      */
 
     public boolean getShowWhatsNewOnStartUp() {
@@ -69,6 +69,38 @@ public class ScriptorConfig {
 
     public List<String> getExpandedFolders() {
         return structure.getExpandedFolders();
+    }
+
+    public boolean getCheckForUpdatesOnStartup() {
+        return structure.getCheckForUpdatesOnStartup();
+    }
+
+    public boolean getOpenPreviousFilesOnStartup() {
+        return structure.getOpenPreviousFilesOnStartup();
+    }
+
+    public boolean getAutoSaveFileEdits() {
+        return structure.getAutoSaveFileEdits();
+    }
+
+    public boolean getAutoIndent() {
+        return structure.getAutoIndent();
+    }
+
+    public boolean getBracketMatching() {
+        return structure.getBracketMatching();
+    }
+
+    public boolean getSyntaxHighlightingEnabled() {
+        return structure.getSyntaxHighlighting();
+    }
+
+    public int getLanguage() {
+        return structure.getLanguage();
+    }
+
+    public int getIndentTabSize() {
+        return structure.getIndentTabSize();
     }
 
     public Point getWindowPosition() {
@@ -96,9 +128,9 @@ public class ScriptorConfig {
 
         return dimension;
     }
-    
+
     /*
-      Set
+     * Set
      */
 
     public void setShowWhatsNewOnStartUp(boolean value) {
@@ -161,6 +193,86 @@ public class ScriptorConfig {
         }
     }
 
+    public void setCheckForUpdatesOnStartup(boolean value) {
+        structure.setCheckForUpdatesOnStartup(value);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setOpenPreviousFilesOnStartup(boolean value) {
+        structure.setOpenPreviousFilesOnStartup(value);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setAutoSaveFileEdits(boolean value) {
+        structure.setAutoSaveFileEdits(value);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setAutoIndent(boolean value) {
+        structure.setAutoIndent(value);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setBracketMatching(boolean value) {
+        structure.setBracketMatching(value);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setSyntaxHighlightingEnabled(boolean value) {
+        structure.setSyntaxHighlighting(value);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setLanguage(int languageId) {
+        structure.setLanguage(languageId);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setIndentTabSize(int size) {
+        structure.setIndentTabSize(size);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setWindowPosition(Point point) {
         List<Double> position = new ArrayList<Double>();
 
@@ -197,6 +309,7 @@ public class ScriptorConfig {
         structure.setPaths(new ArrayList<String>());
         structure.setExtended(false);
         structure.setZoom(12);
+        structure.setIndentTabSize(4);
         structure.setExpandedFolders(new ArrayList<String>());
         structure.setWindowPosition(new ArrayList<Double>());
         structure.setWindowSize(new ArrayList<Double>());

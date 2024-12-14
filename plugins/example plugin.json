@@ -1,8 +1,7 @@
 {
-  "name" : "Default configuration",
-  "description" : "The plugin with default configuration for Scriptor, must be enabled for core functionality.<br>Disabling the plugin will cause major problems to the app, do not mess with this plugin!",
-  "version" : "1.0.0",
-  "__system__": true,
+  "name" : "Example plugin",
+  "description" : "Description of your plugin",
+  "version" : "0.1.0-beta",
   "config" : {
     "syntax.highlight.tokens.COMMENT_DOCUMENTATION.color" : "#808080",
     "syntax.highlight.tokens.MARKUP_TAG_DELIMITER.color" : "#1c1a5d",
@@ -31,5 +30,5 @@
     "syntax.highlight.tokens.LITERAL_CHAR.color" : "#008000",
     "syntax.highlight.tokens.LITERAL_STRING_DOUBLE_QUOTE.color" : "#008000"
   },
-  "enabled" : true
+  "enabled" : false
 }

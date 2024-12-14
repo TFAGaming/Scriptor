@@ -16,7 +16,7 @@ public class ScriptorWhatsNew extends JFrame {
     public ScriptorWhatsNew(Scriptor scriptor) {
         this.scriptor = scriptor;
 
-        setTitle("What\'s new?");
+        setTitle("What\'s New?");
         setSize(800, 600);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -50,7 +50,8 @@ public class ScriptorWhatsNew extends JFrame {
             e.printStackTrace();
         }
 
-        JCheckBox checkBox = new JCheckBox("Never show this again.");
+        JCheckBox checkBox = new JCheckBox("Never show this again on startup.");
+        checkBox.setSelected(!scriptor.config.getShowWhatsNewOnStartUp());
         checkBox.setFocusable(false);
 
         JButton okButton = new JButton("OK");
@@ -63,27 +64,27 @@ public class ScriptorWhatsNew extends JFrame {
                 if (isDisplayable()) {
                     dispose();
 
-                    if (checkBox.isSelected()) {
-                        scriptor.config.setShowWhatsNewOnStartUp(false);
-                    }
+                    scriptor.config.setShowWhatsNewOnStartUp(!checkBox.isSelected());
                 }
-            }     
+            }
         });
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setBorder(new EmptyBorder(10, 10, 0, 10)); 
+        bottomPanel.setBorder(new EmptyBorder(10, 10, 0, 10));
 
         bottomPanel.add(checkBox, BorderLayout.WEST);
         bottomPanel.add(okButton, BorderLayout.EAST);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-        panel.setBorder(new EmptyBorder(10, 10, 10, 10)); 
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         panel.add(label, BorderLayout.NORTH);
         panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
         panel.add(bottomPanel, BorderLayout.SOUTH);
 
         add(panel);
+
+        setVisible(true);
     }
 }

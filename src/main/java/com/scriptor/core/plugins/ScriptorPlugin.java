@@ -16,6 +16,7 @@ public class ScriptorPlugin {
     private String name;
     private String description;
     private String version;
+    private boolean system;
     private boolean enabled;
     private ScriptorPluginConfig config;
 
@@ -26,6 +27,7 @@ public class ScriptorPlugin {
         this.name = json.optString("name", "Unnamed Plugin");
         this.description = json.optString("description", "No description provided");
         this.version = json.optString("version", "0.0.0");
+        this.system = json.optBoolean("__system__", false);
         this.enabled = json.optBoolean("enabled", false);
         this.config = new ScriptorPluginConfig(json.optJSONObject("config"));
     }
@@ -40,6 +42,10 @@ public class ScriptorPlugin {
 
     public String getVersion() {
         return version;
+    }
+
+    public boolean getSystem() {
+        return system;
     }
 
     public boolean getEnabled() {

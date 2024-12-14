@@ -7,8 +7,8 @@ import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.FileUtils;
 
 import com.scriptor.Scriptor;
-import com.scriptor.Utils;
 import com.scriptor.core.gui.frames.ScriptorProgressBar;
+import com.scriptor.core.utils.ScriptorProgrammingLanguagesUtils;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -42,7 +42,7 @@ public class ScriptorFileExplorer extends JPanel {
     private String rootPath = "";
     private int filesCounter = 0;
 
-    public ScriptorFileExplorer(Scriptor scriptor, String rootPath) {
+    public ScriptorFileExplorer(Scriptor scriptor, String rootPath, boolean openExpandedFolders) {
         this.rootPath = rootPath;
         this.scriptor = scriptor;
 
@@ -57,7 +57,7 @@ public class ScriptorFileExplorer extends JPanel {
 
         fileTree.setCellRenderer(new FileTreeCellRenderer());
 
-        populateTreeWithThread(rootNode, new File(rootPath));
+        populateTreeWithThread(rootNode, new File(rootPath), true);
 
         JScrollPane scrollPane = new JScrollPane(fileTree);
         add(scrollPane, BorderLayout.CENTER);
@@ -93,7 +93,7 @@ public class ScriptorFileExplorer extends JPanel {
 
         File newRoot = new File(newPath);
         rootNode.setUserObject(new FileNode(newRoot));
-        populateTreeWithThread(rootNode, newRoot);
+        populateTreeWithThread(rootNode, newRoot, false);
 
         treeModel.reload();
     }
@@ -104,7 +104,7 @@ public class ScriptorFileExplorer extends JPanel {
 
         File newRoot = new File(this.rootPath);
         rootNode.setUserObject(new FileNode(newRoot));
-        populateTreeWithThread(rootNode, newRoot);
+        populateTreeWithThread(rootNode, newRoot, false);
 
         treeModel.reload();
     }
@@ -160,7 +160,7 @@ public class ScriptorFileExplorer extends JPanel {
         }
     }
 
-    private void populateTreeWithThread(DefaultMutableTreeNode rootNode, File fileRoot) {
+    private void populateTreeWithThread(DefaultMutableTreeNode rootNode, File fileRoot, boolean openExpandedFolders) {
         if (thread != null) {
             progressBarFrame.dispose();
             progressBarFrame = null;
@@ -181,6 +181,10 @@ public class ScriptorFileExplorer extends JPanel {
                 progressBarFrame = null;
 
                 thread = null;
+
+                if (scriptor.config.getExpandedFolders().size() > 0) {
+                    restoreExpandedFolders(scriptor.config.getExpandedFolders());
+                }
             });
         });
 
@@ -607,7 +611,7 @@ public class ScriptorFileExplorer extends JPanel {
     }
 
     public Icon getFileIcon(File file) {
-        File fileIcon = new File("resources/icons/" + Utils.getLanguageIconNameByFile(file));
+        File fileIcon = new File("resources/icons/" + ScriptorProgrammingLanguagesUtils.getLanguageIconNameByFile(file));
 
         return fileIcon == null ? null : resizeSVGToIcon(fileIcon.getPath(), 16, 16);
     }

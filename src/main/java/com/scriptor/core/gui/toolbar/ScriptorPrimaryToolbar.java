@@ -1,7 +1,5 @@
 package com.scriptor.core.gui.toolbar;
 
-import static javax.swing.JOptionPane.*;
-
 import java.awt.*;
 import java.awt.event.*;
 
@@ -11,10 +9,10 @@ import javax.swing.border.EmptyBorder;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import com.scriptor.Scriptor;
-import com.scriptor.Utils;
 import com.scriptor.core.gui.frames.ScriptorSettings;
-import com.scriptor.core.gui.components.JClosableComponentType;
+import com.scriptor.core.utils.JClosableComponentType;
 import com.scriptor.core.gui.frames.ScriptorFindAndReplace;
+import com.scriptor.core.gui.frames.ScriptorInformation;
 
 public class ScriptorPrimaryToolbar extends JToolBar {
     public ScriptorPrimaryToolbar(Scriptor scriptor) {
@@ -162,17 +160,15 @@ public class ScriptorPrimaryToolbar extends JToolBar {
         buttonSettings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ScriptorSettings configFrame = new ScriptorSettings(scriptor);
-
-                configFrame.setVisible(true);
+                new ScriptorSettings(scriptor);
             }
         });
 
-        JButton buttonHelp = createButton(getIcon("help.gif"), "About");
-        buttonHelp.addActionListener(new ActionListener() {
+        JButton buttonInformation = createButton(getIcon("information.png"), "Information");
+        buttonInformation.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showMessageDialog(scriptor, Utils.getAboutScriptor(), "About Scriptor", INFORMATION_MESSAGE);
+                new ScriptorInformation(scriptor);
             }
         });
 
@@ -227,7 +223,7 @@ public class ScriptorPrimaryToolbar extends JToolBar {
 
         add(buttonSettings);
         add(Box.createRigidArea(new Dimension(4, 0)));
-        add(buttonHelp);
+        add(buttonInformation);
 
         JPanel panel = new JPanel();
         add(panel, BorderLayout.CENTER);

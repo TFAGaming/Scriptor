@@ -8,10 +8,9 @@ import org.fife.ui.rsyntaxtextarea.*;
 
 import com.scriptor.core.config.ScriptorConfig;
 import com.scriptor.core.gui.components.JClosableComponent;
-import com.scriptor.core.gui.components.JClosableComponentType;
 import com.scriptor.core.gui.frames.ScriptorWhatsNew;
 import com.scriptor.core.gui.menus.ScriptorMenubar;
-import com.scriptor.core.gui.others.ScriptorNotificiation;
+import com.scriptor.core.gui.others.ScriptorNotification;
 import com.scriptor.core.gui.panels.ScriptorFileExplorer;
 import com.scriptor.core.gui.toolbar.ScriptorPrimaryToolbar;
 import com.scriptor.core.gui.toolbar.ScriptorTerminalToolbar;
@@ -44,7 +43,8 @@ public class Scriptor extends JFrame implements ActionListener {
     public ScriptorPluginsHandler pluginsHandler = new ScriptorPluginsHandler("plugins");
     public ScriptorTextAreaTabManager textAreaTabManager;
     public ScriptorTerminalTabManager terminalTabManager;
-    public ScriptorNotificationsManager notificationsManager = new ScriptorNotificationsManager(this, new ArrayList<ScriptorNotificiation>());
+    public ScriptorNotificationsManager notificationsManager = new ScriptorNotificationsManager(this,
+            new ArrayList<ScriptorNotification>());
 
     public List<JClosableComponent> removedComponents = new ArrayList<JClosableComponent>();
 
@@ -56,9 +56,6 @@ public class Scriptor extends JFrame implements ActionListener {
         setTitle("Scriptor");
         setSize(1400, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-        // setBackground(Color.decode((String)
-        // pluginsHandler.getMergedConfig().get("frame.background.color")));
 
         setIconImage(getIcon("scriptor_icon.png").getImage());
 
@@ -78,7 +75,7 @@ public class Scriptor extends JFrame implements ActionListener {
         // Files explorer
         filesExplorer = new ScriptorFileExplorer(this, config.getDirectoryPath() == null
                 ? System.getProperty("user.dir")
-                : config.getDirectoryPath());
+                : config.getDirectoryPath(), true);
 
         // Menu bar
         setJMenuBar(new ScriptorMenubar(this));
@@ -176,9 +173,9 @@ public class Scriptor extends JFrame implements ActionListener {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                List<String> expandedFolders = filesExplorer.getExpandedFolders();
+                terminalTabManager.stopAllProcesses();
 
-                System.out.println(getSize());
+                List<String> expandedFolders = filesExplorer.getExpandedFolders();
 
                 config.setExpandedFolders(expandedFolders);
                 config.setWindowSize(getSize());
@@ -187,20 +184,13 @@ public class Scriptor extends JFrame implements ActionListener {
         });
 
         // Others
-        new ScriptorKeybinds(this, textAreaTabPane);
-
         textAreaTabManager.openPreviousTabs();
 
-        if (config.getExpandedFolders().size() > 0) {
-            filesExplorer.restoreExpandedFolders(config.getExpandedFolders());
-        }
+        new ScriptorKeybinds(this, textAreaTabPane);
 
         updateStatusBar();
 
-        notificationsManager.newNotification(new ScriptorNotificiation("Ready!", "Scriptor is now ready to use."));
-        notificationsManager.newNotification(new ScriptorNotificiation("Example 1", "Example description 1"));
-        notificationsManager.newNotification(new ScriptorNotificiation("Example 2", "Example description 2"));
-        notificationsManager.newNotification(new ScriptorNotificiation("Example 3", "Example description 3"));
+        newWelcomeNotification();
     }
 
     public static void main(String[] args) {
@@ -209,9 +199,7 @@ public class Scriptor extends JFrame implements ActionListener {
             scriptor.setVisible(true);
 
             if (scriptor.config.getShowWhatsNewOnStartUp()) {
-                ScriptorWhatsNew welcomeFrame = new ScriptorWhatsNew(scriptor);
-
-                welcomeFrame.setVisible(true);
+                new ScriptorWhatsNew(scriptor);
             }
         });
     }
@@ -258,7 +246,7 @@ public class Scriptor extends JFrame implements ActionListener {
 
         if (path != null) {
             String fileExtension = FilenameUtils.getExtension(new File(path).getName());
-            language = Utils.getLanguageByFileExtension(fileExtension);
+            language = ScriptorProgrammingLanguagesUtils.getLanguageByFileExtension(fileExtension);
         }
 
         String newLabelText = language + " | Length: " + textArea.getText().trim().length() + ", Lines: "
@@ -311,6 +299,40 @@ public class Scriptor extends JFrame implements ActionListener {
                 }
             }
         }
+    }
+
+    private void newWelcomeNotification() {
+        List<JButton> buttons = new ArrayList<JButton>();
+
+        ScriptorNotification notification = new ScriptorNotification("Ready!", "Scriptor is now ready to use.", null,
+                null);
+
+        JButton okButton = new JButton("OK!");
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                notificationsManager.removeNotification(notification, null);
+            }
+        });
+
+        final Scriptor scriptor = this;
+
+        JButton whatsNewButton = new JButton("What's New?");
+        whatsNewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ScriptorWhatsNew(scriptor);
+
+                notificationsManager.removeNotification(notification, null);
+            }
+        });
+
+        buttons.add(okButton);
+        buttons.add(whatsNewButton);
+
+        notification.setButtons(buttons);
+
+        notificationsManager.newNotification(notification);
     }
 
     @Override

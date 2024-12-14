@@ -11,8 +11,7 @@ import com.scriptor.Scriptor;
 public class TerminalPopupMenu extends JPopupMenu {
     public TerminalPopupMenu(Scriptor scriptor) {
         JMenuItem endProcessButton = new JMenuItem("End Process");
-        JMenuItem clearTerminalButton = new JMenuItem("Clear Terminal");
-
+        endProcessButton.setIcon(scriptor.getIcon("process_stop.gif"));
         endProcessButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -24,6 +23,8 @@ public class TerminalPopupMenu extends JPopupMenu {
             }
         });
 
+        JMenuItem clearTerminalButton = new JMenuItem("Clear Terminal");
+        clearTerminalButton.setIcon(scriptor.getIcon("erase.gif"));
         clearTerminalButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

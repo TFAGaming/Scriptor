@@ -10,8 +10,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import com.scriptor.Scriptor;
-import com.scriptor.core.gui.components.JClosableComponentType;
+import com.scriptor.core.gui.frames.ScriptorInformation;
 import com.scriptor.core.gui.frames.ScriptorMarkdownViewer;
+import com.scriptor.core.utils.JClosableComponentType;
 
 public class ScriptorMenubar extends JMenuBar {
     public ScriptorMenubar(Scriptor scriptor) {
@@ -258,12 +259,43 @@ public class ScriptorMenubar extends JMenuBar {
         viewMenu.add(menuItemMarkdownViewer);
 
         /*
+         * Help menu
+         */
+
+        JMenu helpMenu = new JMenu("Help");
+
+        JMenuItem menuItemHelp = createMenuItem("Help?", scriptor.getIcon("help.gif"),
+                TOOL_TIP_TEXT_KEY,
+                null);
+        menuItemHelp.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+            }
+        });
+
+        JMenuItem menuItemAbout = createMenuItem("About", scriptor.getIcon("information.png"),
+                TOOL_TIP_TEXT_KEY,
+                null);
+        menuItemAbout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ScriptorInformation(scriptor);
+            }
+        });
+
+        helpMenu.add(menuItemHelp);
+        helpMenu.addSeparator();
+        helpMenu.add(menuItemAbout);
+
+        /*
          * End
          */
 
         add(fileMenu);
         add(editMenu);
         add(viewMenu);
+        add(helpMenu);
     }
 
     private JMenuItem createMenuItem(String text, ImageIcon menuItemIcon, String tooltip, KeyStroke accelerator) {

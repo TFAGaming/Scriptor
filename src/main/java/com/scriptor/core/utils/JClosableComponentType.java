@@ -1,4 +1,4 @@
-package com.scriptor.core.gui.components;
+package com.scriptor.core.utils;
 
 public class JClosableComponentType {
     public static final int FILE_EXPLORER = 1;

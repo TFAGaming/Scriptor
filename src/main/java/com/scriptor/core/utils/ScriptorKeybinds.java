@@ -3,7 +3,6 @@ package com.scriptor.core.utils;
 import javax.swing.*;
 
 import com.scriptor.Scriptor;
-import com.scriptor.core.gui.components.JClosableComponentType;
 
 import java.awt.event.*;
 

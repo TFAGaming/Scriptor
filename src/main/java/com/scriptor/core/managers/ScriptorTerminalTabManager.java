@@ -55,6 +55,12 @@ public class ScriptorTerminalTabManager {
         }
     }
 
+    public void stopAllProcesses() {
+        for (ScriptorTerminal terminal : arrayTerminals) {
+            terminal.closeProcess();
+        }
+    }
+
     public ScriptorTerminal getCurrentTerminal() {
         int index = tabbedPane.getSelectedIndex();
 

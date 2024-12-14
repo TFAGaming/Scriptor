@@ -38,15 +38,7 @@ public class ScriptorTerminalToolbar extends JToolBar {
             }
         });
 
-        JButton buttonCloseAllTerminal = createButton(getIcon("close_all.gif"), "Close all");
-        buttonCloseAllTerminal.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                scriptor.terminalTabManager.closeAllTabs();
-            }
-        });
-
-        JButton buttonClearOutput = createButton(getIcon("erase.gif"), "Erase output");
+        JButton buttonClearOutput = createButton(getIcon("erase.gif"), "Clear Output");
         buttonClearOutput.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -56,7 +48,7 @@ public class ScriptorTerminalToolbar extends JToolBar {
             }
         });
 
-        JButton buttonProcessRestart = createButton(getIcon("process_restart.gif"), "Restart process");
+        JButton buttonProcessRestart = createButton(getIcon("process_restart.gif"), "Restart Process");
         buttonProcessRestart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -66,7 +58,7 @@ public class ScriptorTerminalToolbar extends JToolBar {
             }
         });
 
-        JButton buttonProcessStop = createButton(getIcon("process_stop.gif"), "Stop process");
+        JButton buttonProcessStop = createButton(getIcon("process_stop.gif"), "Stop Process");
         buttonProcessStop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,13 +68,15 @@ public class ScriptorTerminalToolbar extends JToolBar {
             }
         });
 
-        JButton buttonPaste = createButton(getIcon("paste.gif"), "Paste");
-        buttonPaste.addActionListener(new ActionListener() {
+        JButton buttonCopy = createButton(getIcon("copy.gif"), "Copy Output");
+        buttonCopy.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ScriptorTerminal terminal = scriptor.terminalTabManager.getCurrentTerminal();
 
-                terminal.commandTextField.paste();
+                terminal.terminalArea.selectAll();
+                terminal.terminalArea.copy();
+                terminal.terminalArea.select(0, 0);
             }
         });
 
@@ -108,10 +102,8 @@ public class ScriptorTerminalToolbar extends JToolBar {
         });
 
         add(buttonNewTerminal);
-        add(Box.createRigidArea(new Dimension(4, 0)));
-        add(buttonCloseCurrentTerminal);
-        add(Box.createRigidArea(new Dimension(4, 0)));
-        add(buttonCloseAllTerminal);
+        /*add(Box.createRigidArea(new Dimension(4, 0)));
+        add(buttonCloseCurrentTerminal);*/
         add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonClearOutput);
 
@@ -127,7 +119,7 @@ public class ScriptorTerminalToolbar extends JToolBar {
         addSeparator(new Dimension(4, 20));
         add(Box.createRigidArea(new Dimension(4, 0)));
 
-        add(buttonPaste);
+        add(buttonCopy);
 
         add(Box.createRigidArea(new Dimension(4, 0)));
         addSeparator(new Dimension(4, 20));

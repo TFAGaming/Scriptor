@@ -1,9 +1,10 @@
 package com.scriptor.core.managers;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 import com.scriptor.Scriptor;
-import com.scriptor.core.gui.others.ScriptorNotificiation;
+import com.scriptor.core.gui.others.ScriptorNotification;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,15 +13,15 @@ import java.util.List;
 public class ScriptorNotificationsManager {
     private boolean isHidden = true;
     private Scriptor scriptor;
-    private List<ScriptorNotificiation> notifications;
+    private List<ScriptorNotification> notifications;
     private JPopupMenu popupMenu;
 
-    public ScriptorNotificationsManager(Scriptor scriptor, List<ScriptorNotificiation> notifications) {
+    public ScriptorNotificationsManager(Scriptor scriptor, List<ScriptorNotification> notifications) {
         this.scriptor = scriptor;
         this.notifications = notifications;
     }
 
-    public void newNotification(ScriptorNotificiation notification) {
+    public void newNotification(ScriptorNotification notification) {
         this.notifications.add(notification);
     }
 
@@ -32,20 +33,21 @@ public class ScriptorNotificationsManager {
 
         if (notifications.isEmpty()) {
             JMenuItem emptyItem = new JMenuItem("No notifications...");
-            
+
             emptyItem.setEnabled(false);
             popupMenu.add(emptyItem);
         } else {
             for (int i = 0; i < notifications.size(); i++) {
-                ScriptorNotificiation notification = notifications.get(i);
+                ScriptorNotification notification = notifications.get(i);
 
                 JPanel notificationPanel = new JPanel(new BorderLayout());
-                notificationPanel.setPreferredSize(new Dimension(400, 50));
+                notificationPanel.setPreferredSize(new Dimension(400, notification.getButtons().size() > 0 ? 70 : 50));
 
                 // Notification title and message
                 JLabel notificationLabel = new JLabel(
                         "<html><p style='width:250px;'><b>" + notification.getTitle() + "</b><br>"
                                 + notification.getMessage() + "</p></html>");
+                notificationLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
                 notificationPanel.add(notificationLabel, BorderLayout.WEST);
 
                 // Dismiss button
@@ -60,6 +62,18 @@ public class ScriptorNotificationsManager {
                 dismissButton.addActionListener(new RemoveNotificationAction(notification, button));
 
                 notificationPanel.add(dismissButton, BorderLayout.EAST);
+
+                if (notification.getButtons().size() > 0) {
+                    JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+                    for (JButton actionButton : notification.getButtons()) {
+                        actionButton.setFocusable(false);
+
+                        buttonsPanel.add(actionButton);
+                    }
+
+                    notificationPanel.add(buttonsPanel, BorderLayout.SOUTH);
+                }
 
                 popupMenu.add(notificationPanel);
 
@@ -83,21 +97,28 @@ public class ScriptorNotificationsManager {
         return isHidden;
     }
 
+    public void removeNotification(ScriptorNotification notification, JButton button) {
+        notifications.remove(notification);
+
+        hideNotifications();
+
+        if (button != null) {
+            showNotifications(button);
+        }
+    }
+
     public class RemoveNotificationAction extends AbstractAction {
-        private final ScriptorNotificiation notification;
+        private final ScriptorNotification notification;
         private final JButton button;
 
-        public RemoveNotificationAction(ScriptorNotificiation notification, JButton button) {
+        public RemoveNotificationAction(ScriptorNotification notification, JButton button) {
             this.notification = notification;
             this.button = button;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            notifications.remove(notification);
-
-            hideNotifications();
-            showNotifications(button);
+            removeNotification(notification, button);
         }
     }
 }

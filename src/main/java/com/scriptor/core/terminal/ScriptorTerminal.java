@@ -19,7 +19,6 @@ import com.scriptor.core.gui.components.JExtendedTextField;
 
 public class ScriptorTerminal extends JPanel {
     private Scriptor scriptor;
-    private JTextPane terminalArea;
     private JTextField dirPathLabel;
 
     private String currentDirectory = "";
@@ -32,6 +31,7 @@ public class ScriptorTerminal extends JPanel {
 
     private boolean awaitingInput = false;
 
+    public JTextPane terminalArea;
     public JExtendedTextField commandTextField;
 
     public ScriptorTerminal(Scriptor scriptor, String dirPath) {

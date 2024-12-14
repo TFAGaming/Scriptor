@@ -1,16 +1,12 @@
-package com.scriptor;
+package com.scriptor.core.utils;
 
-import java.awt.Color;
 import java.io.File;
 import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
-import org.fife.ui.rsyntaxtextarea.Token;
 
-public class Utils {
+public class ScriptorProgrammingLanguagesUtils {
     public static String getSyntaxConstantByFileExtension(String extension) {
         switch (extension) {
             case "as":
@@ -257,6 +253,7 @@ public class Utils {
                     case "sc":
                         return "scala.svg";
                     case "sql":
+                    case "sqlite":
                     case "db":
                         return "database.svg";
                     case "ts":
@@ -298,7 +295,10 @@ public class Utils {
                     case "jpg":
                     case "gif":
                     case "tiff":
+                    case "ico":
                         return "image.svg";
+                    case "svg":
+                        return "svg.svg";
                     case "mp4":
                     case "mov":
                     case "wmv":
@@ -425,6 +425,7 @@ public class Utils {
             case "sc":
                 return "Scala";
             case "sql":
+            case "sqlite":
             case "db":
                 return "SQL";
             case "ts":
@@ -541,72 +542,5 @@ public class Utils {
         }
 
         return extensions;
-    }
-
-    public static void setTextSyntaxHighlightingColors(RSyntaxTextArea textArea) {
-        SyntaxScheme scheme = textArea.getSyntaxScheme();
-
-        scheme.getStyle(Token.ANNOTATION).foreground = Color.decode("#008000");
-        scheme.getStyle(Token.RESERVED_WORD).foreground = Color.decode("#0037a4");
-        scheme.getStyle(Token.RESERVED_WORD_2).foreground = Color.decode("#0037a4");
-
-        scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = Color.decode("#008000");
-        scheme.getStyle(Token.LITERAL_CHAR).foreground = Color.decode("#008000");
-        scheme.getStyle(Token.LITERAL_BACKQUOTE).foreground = Color.decode("#008000");
-
-        scheme.getStyle(Token.LITERAL_BOOLEAN).foreground = Color.decode("#1750ea");
-
-        scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = Color.BLUE;
-        scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = Color.BLUE;
-        scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = Color.BLUE;
-
-        scheme.getStyle(Token.REGEX).foreground = Color.decode("#cb1823");
-
-        scheme.getStyle(Token.COMMENT_MULTILINE).foreground = Color.GRAY;
-        scheme.getStyle(Token.COMMENT_DOCUMENTATION).foreground = Color.GRAY;
-        scheme.getStyle(Token.COMMENT_EOL).foreground = Color.GRAY;
-
-        scheme.getStyle(Token.SEPARATOR).foreground = Color.BLACK;
-        scheme.getStyle(Token.OPERATOR).foreground = Color.BLACK;
-        scheme.getStyle(Token.IDENTIFIER).foreground = Color.BLACK;
-        scheme.getStyle(Token.VARIABLE).foreground = Color.decode("#c02d2e");
-        scheme.getStyle(Token.FUNCTION).foreground = Color.RED;
-        scheme.getStyle(Token.PREPROCESSOR).foreground = Color.decode("#0037a4");
-
-        // HTML / XML related
-        scheme.getStyle(Token.MARKUP_CDATA).foreground = Color.decode("#0037a4");
-        scheme.getStyle(Token.MARKUP_COMMENT).foreground = Color.GRAY;
-        scheme.getStyle(Token.MARKUP_DTD).foreground = Color.decode("#bc8c2b");
-        // scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = Color.BLUE;
-        // scheme.getStyle(Token.MARKUP_PROCESSING_INSTRUCTION).foreground = Color.BLUE;
-        scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE).foreground = Color.decode("#64278f");
-        scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE_VALUE).foreground = Color.decode("#008000");
-        scheme.getStyle(Token.MARKUP_TAG_DELIMITER).foreground = Color.decode("#1c1a5d");
-        scheme.getStyle(Token.MARKUP_TAG_NAME).foreground = Color.decode("#1c1a5d");
-
-        textArea.setSyntaxScheme(scheme);
-    }
-
-    public static String getAboutScriptor() {
-        String[] array = {
-            "General information:",
-            "• Version: " + Scriptor.getVersion(),
-            "• Author(s): TFAGaming",
-            "• License: The MIT License",
-            "",
-            "Dependencies used to make Scriptor:",
-            "• Apache Commons IO",
-            "• RSyntaxTextArea (com.fifesoft)",
-            "• Autocomplete (com.fifesoft)",
-            "• Batik Codec (org.apache.xmlgraphics)",
-            "• Jackson Databind (com.fasterxml.jackson.core)"
-        };
-        String finalString = "";
-
-        for (String each : array) {
-            finalString += each + "\n";
-        }
-
-        return finalString;
     }
 }
