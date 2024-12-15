@@ -62,6 +62,10 @@ public class ScriptorSettings extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
+        JLabel __warning = new JLabel("Any changes will be saved automatically, but requires to restart the application to apply changes!");
+        __warning.setBorder(new EmptyBorder(5, 10, 0, 0));
+        panel.add(__warning);
+
         String languages[] = { "English US" };
         JComboBox<String> languageComboBox = new JComboBox<String>(languages);
         languageComboBox.setSelectedIndex(0);
@@ -120,6 +124,10 @@ public class ScriptorSettings extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
+        JLabel __warning = new JLabel("Any changes will be saved automatically, but requires to restart the application to apply changes!");
+        __warning.setBorder(new EmptyBorder(5, 10, 0, 0));
+        panel.add(__warning);
+
         JCheckBox autoIndentCheckBox = new JCheckBox();
         autoIndentCheckBox.setSelected(scriptor.config.getAutoIndent());
         autoIndentCheckBox.addActionListener(new ActionListener() {
@@ -140,7 +148,6 @@ public class ScriptorSettings extends JFrame {
                 scriptor.config.setIndentTabSize(tabSizeComboBox.getSelectedIndex() + 1);
             }
         });
-        tabSizeComboBox.setSelectedIndex(3);
         JLabel languageLabel = new JLabel("Indent Tab size: ");
         languageLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
         panel.add(newJPanelLeftLayout(languageLabel, tabSizeComboBox));
@@ -166,6 +173,28 @@ public class ScriptorSettings extends JFrame {
         });
         JLabel syntaxHighlightingEnabledLabel = new JLabel("Enable Syntax Highlighting");
         panel.add(newJPanelLeftLayout(syntaxHighlightingEnabledCheckBox, syntaxHighlightingEnabledLabel));
+
+        JCheckBox bookmarkingCheckBox = new JCheckBox();
+        bookmarkingCheckBox.setSelected(scriptor.config.getBookmarkingEnabled());
+        bookmarkingCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scriptor.config.setBookmarkingEnabled(bookmarkingCheckBox.isSelected());
+            }
+        });
+        JLabel bookmakingLabel = new JLabel("Enable Bookmarking");
+        panel.add(newJPanelLeftLayout(bookmarkingCheckBox, bookmakingLabel));
+
+        JCheckBox markOccurrencesCheckBox = new JCheckBox();
+        markOccurrencesCheckBox.setSelected(scriptor.config.getMarkOccurrencesEnabled());
+        markOccurrencesCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scriptor.config.setMarkOccurrencesEnabled(markOccurrencesCheckBox.isSelected());
+            }
+        });
+        JLabel markOccurrencesLabel = new JLabel("Enable Mark Occurrences");
+        panel.add(newJPanelLeftLayout(markOccurrencesCheckBox, markOccurrencesLabel));
 
         return panel;
     }

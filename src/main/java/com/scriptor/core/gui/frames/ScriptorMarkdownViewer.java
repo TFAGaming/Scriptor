@@ -10,6 +10,7 @@ import com.scriptor.Scriptor;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -20,7 +21,7 @@ public class ScriptorMarkdownViewer extends JFrame {
         this.scriptor = scriptor;
 
         setTitle("Markdown Viewer - " + path);
-        setSize(800, 600);
+        setSize(1000, 800);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -33,27 +34,25 @@ public class ScriptorMarkdownViewer extends JFrame {
         JScrollPane scrollPane = new JScrollPane(editorPane);
         add(scrollPane, BorderLayout.CENTER);
 
-        System.out.println(path);
+        try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            String line = reader.readLine();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            try {
-                StringBuilder sb = new StringBuilder();
-                String line = br.readLine();
-
-                while (line != null) {
-                    sb.append(line);
-                    sb.append(System.lineSeparator());
-                    line = br.readLine();
-                }
-
-                String markdownText = sb.toString();
-
-                editorPane.setText(convertToMarkdown(markdownText, readFile("./resources/github.css")));
-            } finally {
-                br.close();
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = reader.readLine();
             }
+
+            String markdownText = sb.toString();
+
+            editorPane.setText(convertToMarkdown(markdownText, readFile("./resources/github.css")));
+
+            reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            scriptor.logger.insert(e.toString());
         }
 
         setVisible(true);

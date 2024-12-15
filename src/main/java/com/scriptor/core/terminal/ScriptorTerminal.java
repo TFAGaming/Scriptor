@@ -79,7 +79,7 @@ public class ScriptorTerminal extends JPanel {
                             processWriter.write(command + "\n");
                             processWriter.flush();
                         } catch (IOException ex) {
-                            ex.printStackTrace();
+                            scriptor.logger.insert(ex.toString());
                         }
                     } else if (!awaitingInput && !isAlive()) {
                         commandTextField.setText("");
@@ -223,7 +223,7 @@ public class ScriptorTerminal extends JPanel {
                             }
                         }
                     } catch (IOException ex) {
-                        ex.printStackTrace();
+                        scriptor.logger.insert(ex.toString());
                     }
                 });
 
@@ -243,7 +243,7 @@ public class ScriptorTerminal extends JPanel {
 
             } catch (IOException ex) {
                 appendToTerminal("Error: Unable to execute command\n", Color.RED, true);
-                ex.printStackTrace();
+                scriptor.logger.insert(ex.toString());
             }
         }
     }
@@ -301,7 +301,7 @@ public class ScriptorTerminal extends JPanel {
         try {
             doc.insertString(doc.getLength(), text, style);
         } catch (BadLocationException e) {
-            e.printStackTrace();
+            scriptor.logger.insert(e.toString());
         }
     }
 
@@ -318,6 +318,21 @@ public class ScriptorTerminal extends JPanel {
     }
 
     public void restartProcess() {
+        if (commands.size() == 0) {
+            showMessageDialog(scriptor, "The commands history for this terminal is empty.", "Terminal Commands History",
+                    WARNING_MESSAGE);
+
+            return;
+        }
+
+        closeProcess();
+
+        appendToTerminal(commands.get(commands.size() - 1) + "\n", Color.decode("#000000"));
+
+        executeCommand(commands.get(commands.size() - 1));
+    }
+
+    public void runPreviousCommand() {
         if (commands.size() == 0) {
             showMessageDialog(scriptor, "The commands history for this terminal is empty.", "Terminal Commands History",
                     WARNING_MESSAGE);

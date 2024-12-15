@@ -43,11 +43,17 @@ public class ScriptorInformation extends JFrame {
         tab2.setUI(new VerticalLabelUI(false));
         tabbedPane.setTabComponentAt(1, tab2);
 
-        tabbedPane.addTab("License", createLicenseInfoPanel());
-        JLabel tab3 = new JLabel("  License  ");
+        tabbedPane.addTab("Dependencies", createDependenciesInfoPanel());
+        JLabel tab3 = new JLabel("  Dependencies  ");
         tab3.setFont(new Font(tab3.getFont().getName(), Font.BOLD, 12));
         tab3.setUI(new VerticalLabelUI(false));
         tabbedPane.setTabComponentAt(2, tab3);
+
+        tabbedPane.addTab("License", createLicenseInfoPanel());
+        JLabel tab4 = new JLabel("  License  ");
+        tab4.setFont(new Font(tab4.getFont().getName(), Font.BOLD, 12));
+        tab4.setUI(new VerticalLabelUI(false));
+        tabbedPane.setTabComponentAt(3, tab4);
 
         splitPane.setLeftComponent(tabbedPane);
 
@@ -68,6 +74,7 @@ public class ScriptorInformation extends JFrame {
 
         data.add("Version: " + Scriptor.getVersion());
         data.add("Written in: Java (100%)");
+        data.add("Build tool: Maven");
         data.add("License: The MIT License");
 
         String dataString = "";
@@ -111,6 +118,47 @@ public class ScriptorInformation extends JFrame {
         }
 
         textArea.setText("The list of contributors to this project:\r\n" + contributorsListString);
+
+        JScrollPane sp = new JScrollPane(textArea);
+
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar verticalScrollBar = sp.getVerticalScrollBar();
+            verticalScrollBar.setValue(verticalScrollBar.getMinimum());
+        });
+
+        textArea.setEditable(false);
+
+        panel.add(sp);
+
+        return panel;
+    }
+
+    private JPanel createDependenciesInfoPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JTextArea textArea = new JTextArea();
+        textArea.setBorder(new EmptyBorder(0, 5, 0, 0));
+        textArea.setLineWrap(true);
+
+        List<String> dependencies = new ArrayList<String>();
+
+        dependencies.add("com.fasterxml.jackson.core: jackson-databind");
+        dependencies.add("com.fifesoft: rsyntaxtextarea");
+        dependencies.add("com.fifesoft: autocomplete");
+        dependencies.add("commons-io: commons-io");
+        dependencies.add("org.apache.xmlgraphics: batik-codec");
+        dependencies.add("org.commonmark: commonmark");
+        dependencies.add("org.json: json");
+        dependencies.add("org.xerial: sqlite-jdbc");
+
+        String dependenciesListString = "";
+
+        for (String dependency : dependencies) {
+            dependenciesListString += "• " + dependency + "\n";
+        }
+
+        textArea.setText("The list of dependencies used to make Scriptor:\r\n" + dependenciesListString);
 
         JScrollPane sp = new JScrollPane(textArea);
 

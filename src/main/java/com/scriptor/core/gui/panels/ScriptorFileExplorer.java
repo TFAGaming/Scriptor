@@ -643,7 +643,7 @@ public class ScriptorFileExplorer extends JPanel {
 
             return icon;
         } catch (IOException | TranscoderException e) {
-            e.printStackTrace();
+            scriptor.logger.insert(e.toString());
             return null;
         }
     }

@@ -47,7 +47,7 @@ public class ScriptorWhatsNew extends JFrame {
                 br.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            scriptor.logger.insert(e.toString());
         }
 
         JCheckBox checkBox = new JCheckBox("Never show this again on startup.");

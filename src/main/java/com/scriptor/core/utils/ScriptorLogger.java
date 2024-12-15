@@ -1,6 +1,8 @@
 package com.scriptor.core.utils;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class ScriptorLogger {
@@ -24,9 +26,12 @@ public class ScriptorLogger {
     }
 
     public void insert(String text) {
+        LocalDateTime dateNow = LocalDateTime.now();  
         String data = read();
 
-        data += text.endsWith("\n") ? text : (text + "\n");
+        DateTimeFormatter formatted = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+
+        data += "[" + formatted.format(dateNow) + "] " + (text.endsWith("\n") ? text : (text + "\n"));
 
         write(data);
     }

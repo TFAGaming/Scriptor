@@ -28,16 +28,6 @@ public class ScriptorTerminalToolbar extends JToolBar {
             }
         });
 
-        JButton buttonCloseCurrentTerminal = createButton(getIcon("close.gif"), "Close Terminal");
-        buttonCloseCurrentTerminal.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = scriptor.terminalTabManager.getIndex();
-
-                scriptor.terminalTabManager.closeTabByIndex(index);
-            }
-        });
-
         JButton buttonClearOutput = createButton(getIcon("erase.gif"), "Clear Output");
         buttonClearOutput.addActionListener(new ActionListener() {
             @Override
@@ -68,6 +58,14 @@ public class ScriptorTerminalToolbar extends JToolBar {
             }
         });
 
+        JButton buttonProcessStopAll = createButton(getIcon("process_stop_all.gif"), "Stop All Processes");
+        buttonProcessStopAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scriptor.terminalTabManager.stopAllProcesses();
+            }
+        });
+
         JButton buttonCopy = createButton(getIcon("copy.gif"), "Copy Output");
         buttonCopy.addActionListener(new ActionListener() {
             @Override
@@ -80,8 +78,19 @@ public class ScriptorTerminalToolbar extends JToolBar {
             }
         });
 
+        JButton buttonRunPreviousCommand = createButton(getIcon("process_run_previous.gif"),
+                "Run Previous Command");
+        buttonRunPreviousCommand.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ScriptorTerminal terminal = scriptor.terminalTabManager.getCurrentTerminal();
+
+                terminal.runPreviousCommand();
+            }
+        });
+
         JButton buttonExecutedCommandsHistory = createButton(getIcon("executed_commands_history.gif"),
-                "View commands history");
+                "View Commands History");
         buttonExecutedCommandsHistory.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -102,8 +111,6 @@ public class ScriptorTerminalToolbar extends JToolBar {
         });
 
         add(buttonNewTerminal);
-        /*add(Box.createRigidArea(new Dimension(4, 0)));
-        add(buttonCloseCurrentTerminal);*/
         add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonClearOutput);
 
@@ -114,6 +121,8 @@ public class ScriptorTerminalToolbar extends JToolBar {
         add(buttonProcessRestart);
         add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonProcessStop);
+        add(Box.createRigidArea(new Dimension(4, 0)));
+        add(buttonProcessStopAll);
 
         add(Box.createRigidArea(new Dimension(4, 0)));
         addSeparator(new Dimension(4, 20));
@@ -125,6 +134,8 @@ public class ScriptorTerminalToolbar extends JToolBar {
         addSeparator(new Dimension(4, 20));
         add(Box.createRigidArea(new Dimension(4, 0)));
 
+        add(buttonRunPreviousCommand);
+        add(Box.createRigidArea(new Dimension(4, 0)));
         add(buttonExecutedCommandsHistory);
 
         JPanel panel = new JPanel();

@@ -38,10 +38,8 @@ public class ScriptorPluginsHandler {
 
                     plugins.add(plugin);
                 } catch (IOException e) {
-                    System.err.println("Error reading file: " + file.getName());
                     e.printStackTrace();
                 } catch (Exception e) {
-                    System.err.println("Error parsing JSON in file: " + file.getName());
                     e.printStackTrace();
                 }
             }

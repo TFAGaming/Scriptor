@@ -9,6 +9,8 @@ public class ScriptorConfigStructure {
     private boolean openPreviousFilesOnStartup;
     private boolean autoSaveFileEdits;
     private boolean autoIndent;
+    private boolean bookMarking;
+    private boolean markOccurrences;
     private int indentTabSize;
     private boolean bracketMatching;
     private boolean syntaxHighlighting;
@@ -49,6 +51,12 @@ public class ScriptorConfigStructure {
 
     public boolean getSyntaxHighlighting() { return syntaxHighlighting; }
     public void setSyntaxHighlighting(boolean value) { this.syntaxHighlighting = value; }
+
+    public boolean getBookmarking() { return bookMarking; }
+    public void setBookmarking(boolean value) { this.bookMarking = value; }
+
+    public boolean getMarkOccurrences() { return markOccurrences; }
+    public void setMarkOccurrences(boolean value) { this.markOccurrences = value; }
 
     public int getLanguage() { return language; }
     public void setLanguage(int languageId) { this.language = languageId; }

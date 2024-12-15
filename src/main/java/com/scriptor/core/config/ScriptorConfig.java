@@ -95,6 +95,14 @@ public class ScriptorConfig {
         return structure.getSyntaxHighlighting();
     }
 
+    public boolean getBookmarkingEnabled() {
+        return structure.getBookmarking();
+    }
+
+    public boolean getMarkOccurrencesEnabled() {
+        return structure.getMarkOccurrences();
+    }
+
     public int getLanguage() {
         return structure.getLanguage();
     }
@@ -233,6 +241,26 @@ public class ScriptorConfig {
         }
     }
 
+    public void setBookmarkingEnabled(boolean value) {
+        structure.setBookmarking(value);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setMarkOccurrencesEnabled(boolean value) {
+        structure.setMarkOccurrences(value);
+
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setBracketMatching(boolean value) {
         structure.setBracketMatching(value);
 
@@ -309,6 +337,12 @@ public class ScriptorConfig {
         structure.setPaths(new ArrayList<String>());
         structure.setExtended(false);
         structure.setZoom(12);
+        structure.setOpenPreviousFilesOnStartup(true);
+        structure.setAutoSaveFileEdits(false);
+        structure.setBracketMatching(true);
+        structure.setSyntaxHighlighting(true);
+        structure.setAutoIndent(true);
+        structure.setBookmarking(true);
         structure.setIndentTabSize(4);
         structure.setExpandedFolders(new ArrayList<String>());
         structure.setWindowPosition(new ArrayList<Double>());

@@ -7,6 +7,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.*;
 
 import com.scriptor.Scriptor;
+import com.scriptor.core.gui.frames.ScriptorSQLiteViewer;
 import com.scriptor.core.plugins.ScriptorPluginsHandler;
 import com.scriptor.core.utils.ScriptorProgrammingLanguagesUtils;
 
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 public class ScriptorTextAreaTabManager {
     private final Scriptor scriptor;
     private final JTabbedPane tabbedPane;
+    private Timer autoSaveTimer;
 
     private boolean _switchedTab = false;
 
@@ -124,7 +126,19 @@ public class ScriptorTextAreaTabManager {
 
         String extension = FilenameUtils.getExtension(file.getPath());
 
-        if (!ScriptorProgrammingLanguagesUtils.getSupportedAndEditableExtensions().contains(extension)) {
+        if (extension.equalsIgnoreCase("sql") || extension.equalsIgnoreCase("sqlite")
+                || extension.equalsIgnoreCase("db")) {
+            int response = showConfirmDialog(null,
+                    "The file was detected to be a SQL file, would you like to open it in SQLite viewer?",
+                    "SQL File Detected",
+                    YES_NO_OPTION);
+
+            if (response == YES_OPTION) {
+                new ScriptorSQLiteViewer(scriptor, path);
+
+                return;
+            }
+        } else if (!ScriptorProgrammingLanguagesUtils.getSupportedAndEditableExtensions().contains(extension)) {
             int response = showConfirmDialog(null,
                     "The file extension \'." + extension
                             + "\' is not supported.\nDo you want to open the file with the default associated program?",
@@ -135,7 +149,7 @@ public class ScriptorTextAreaTabManager {
                 try {
                     Desktop.getDesktop().open(file);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    scriptor.logger.insert(e.toString());
                 }
 
                 return;
@@ -176,8 +190,8 @@ public class ScriptorTextAreaTabManager {
                 JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
                 verticalScrollBar.setValue(verticalScrollBar.getMinimum());
             });
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (IOException e) {
+            scriptor.logger.insert(e.toString());
         }
 
         tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
@@ -242,8 +256,8 @@ public class ScriptorTextAreaTabManager {
                     if (wasNullBefore) {
                         scriptor.filesExplorer.refreshTree();
                     }
-                } catch (IOException exception) {
-                    exception.printStackTrace();
+                } catch (IOException e) {
+                    scriptor.logger.insert(e.toString());
                 }
             }
         }
@@ -291,8 +305,8 @@ public class ScriptorTextAreaTabManager {
 
                     scriptor.setTitle("Scriptor - " + selectedFile.getPath());
                     updateTabTitle(index, selectedFile.getName());
-                } catch (IOException exception) {
-                    exception.printStackTrace();
+                } catch (IOException e) {
+                    scriptor.logger.insert(e.toString());
                 }
             }
         }
@@ -339,13 +353,13 @@ public class ScriptorTextAreaTabManager {
                     }
 
                     reader.close();
-                } catch (IOException exception) {
-                    exception.printStackTrace();
+                } catch (IOException e) {
+                    scriptor.logger.insert(e.toString());
                 }
 
                 scriptor.filesExplorer.refreshTree();
-            } catch (IOException exception) {
-                exception.printStackTrace();
+            } catch (IOException e) {
+                scriptor.logger.insert(e.toString());
             }
         }
     }
@@ -538,19 +552,24 @@ public class ScriptorTextAreaTabManager {
     private RTextScrollPane newTextArea(String filePath) {
         RSyntaxTextArea textArea = new RSyntaxTextArea(20, 60);
 
-        if (filePath != null) {
-            String fileExtension = FilenameUtils.getExtension(filePath);
+        if (scriptor.config.getSyntaxHighlightingEnabled()) {
+            if (filePath != null) {
+                String fileExtension = FilenameUtils.getExtension(filePath);
 
-            textArea.setSyntaxEditingStyle(ScriptorProgrammingLanguagesUtils.getSyntaxConstantByFileExtension(fileExtension));
+                textArea.setSyntaxEditingStyle(
+                        ScriptorProgrammingLanguagesUtils.getSyntaxConstantByFileExtension(fileExtension));
+            } else {
+                textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
+            }
         } else {
             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
         }
 
-        textArea.setBracketMatchingEnabled(true);
+        textArea.setBracketMatchingEnabled(scriptor.config.getBracketMatching());
         textArea.setAnimateBracketMatching(false);
-        textArea.setAutoIndentEnabled(true);
+        textArea.setAutoIndentEnabled(scriptor.config.getAutoIndent());
         textArea.setDragEnabled(true);
-        textArea.setTabSize(4);
+        textArea.setTabSize(scriptor.config.getIndentTabSize());
         textArea.setCodeFoldingEnabled(true);
         textArea.setHyperlinksEnabled(true);
         textArea.setHighlightSecondaryLanguages(false);
@@ -558,18 +577,36 @@ public class ScriptorTextAreaTabManager {
         Font font = textArea.getFont();
         textArea.setFont(font.deriveFont((float) scriptor.config.getZoom()));
 
-        addSyntaxHighlighting(textArea);
+        if (scriptor.config.getSyntaxHighlightingEnabled()) {
+            addSyntaxHighlighting(textArea);
+        }
+
+        if (scriptor.config.getMarkOccurrencesEnabled()) {
+            textArea.setMarkOccurrences(true);
+            textArea.setMarkOccurrencesDelay(100);
+        }
 
         RTextScrollPane scrollPane = new RTextScrollPane(textArea);
         scrollPane.setWheelScrollingEnabled(true);
 
-        Gutter gutter = scrollPane.getGutter();
+        if (scriptor.config.getBookmarkingEnabled()) {
+            Gutter gutter = scrollPane.getGutter();
 
-        Font lineNumberFont = gutter.getLineNumberFont();
-        gutter.setLineNumberFont(lineNumberFont.deriveFont((float) scriptor.config.getZoom()));
+            Font lineNumberFont = gutter.getLineNumberFont();
+            gutter.setLineNumberFont(lineNumberFont.deriveFont((float) scriptor.config.getZoom()));
 
-        gutter.setBookmarkingEnabled(true);
-        gutter.setBookmarkIcon(scriptor.getIcon("bookmark.gif"));
+            gutter.setBookmarkingEnabled(true);
+            gutter.setBookmarkIcon(scriptor.getIcon("bookmark.gif"));
+        }
+
+        autoSaveTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                autoSaveTimer.stop();
+                saveFile();
+            }
+        });
+        autoSaveTimer.setRepeats(false);
 
         textArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -605,8 +642,12 @@ public class ScriptorTextAreaTabManager {
                     arraySavedPaths.set(selectedIndex, false);
 
                     if (file.exists() && file.isFile()) {
-                        scriptor.setTitle("Scriptor - " + file.getPath() + "*");
-                        updateTabTitle(selectedIndex, file.getName() + "*");
+                        if (scriptor.config.getAutoSaveFileEdits()) {
+                            resetAutoSaveTimer();
+                        } else {
+                            scriptor.setTitle("Scriptor - " + file.getPath() + "*");
+                            updateTabTitle(selectedIndex, file.getName() + "*");
+                        }
                     } else {
                         scriptor.setTitle("Scriptor - " + "Untitled*");
                         updateTabTitle(selectedIndex, "Untitled*");
@@ -694,6 +735,14 @@ public class ScriptorTextAreaTabManager {
         tabbedPane.setTabComponentAt(index, tabPanel);
     }
 
+    private void resetAutoSaveTimer() {
+        if (autoSaveTimer.isRunning()) {
+            autoSaveTimer.restart();
+        } else {
+            autoSaveTimer.start();
+        }
+    }
+
     private void addSyntaxHighlighting(RSyntaxTextArea textArea) {
         SyntaxScheme scheme = textArea.getSyntaxScheme();
 
@@ -701,20 +750,27 @@ public class ScriptorTextAreaTabManager {
         scheme.getStyle(Token.RESERVED_WORD).foreground = getConfigSyntaxHighlightingTokenColor("RESERVED_WORD");
         scheme.getStyle(Token.RESERVED_WORD_2).foreground = getConfigSyntaxHighlightingTokenColor("RESERVED_WORD");
 
-        scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = getConfigSyntaxHighlightingTokenColor("LITERAL_STRING_DOUBLE_QUOTE");
+        scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = getConfigSyntaxHighlightingTokenColor(
+                "LITERAL_STRING_DOUBLE_QUOTE");
         scheme.getStyle(Token.LITERAL_CHAR).foreground = getConfigSyntaxHighlightingTokenColor("LITERAL_CHAR");
-        scheme.getStyle(Token.LITERAL_BACKQUOTE).foreground = getConfigSyntaxHighlightingTokenColor("LITERAL_BACKQUOTE");
+        scheme.getStyle(Token.LITERAL_BACKQUOTE).foreground = getConfigSyntaxHighlightingTokenColor(
+                "LITERAL_BACKQUOTE");
 
         scheme.getStyle(Token.LITERAL_BOOLEAN).foreground = getConfigSyntaxHighlightingTokenColor("LITERAL_BOOLEAN");
 
-        scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = getConfigSyntaxHighlightingTokenColor("LITERAL_NUMBER_DECIMAL_INT");
-        scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = getConfigSyntaxHighlightingTokenColor("LITERAL_NUMBER_FLOAT");
-        scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = getConfigSyntaxHighlightingTokenColor("LITERAL_NUMBER_HEXADECIMAL");
+        scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = getConfigSyntaxHighlightingTokenColor(
+                "LITERAL_NUMBER_DECIMAL_INT");
+        scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = getConfigSyntaxHighlightingTokenColor(
+                "LITERAL_NUMBER_FLOAT");
+        scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = getConfigSyntaxHighlightingTokenColor(
+                "LITERAL_NUMBER_HEXADECIMAL");
 
         scheme.getStyle(Token.REGEX).foreground = getConfigSyntaxHighlightingTokenColor("REGEX");
 
-        scheme.getStyle(Token.COMMENT_MULTILINE).foreground = getConfigSyntaxHighlightingTokenColor("COMMENT_MULTILINE");
-        scheme.getStyle(Token.COMMENT_DOCUMENTATION).foreground = getConfigSyntaxHighlightingTokenColor("COMMENT_DOCUMENTATION");
+        scheme.getStyle(Token.COMMENT_MULTILINE).foreground = getConfigSyntaxHighlightingTokenColor(
+                "COMMENT_MULTILINE");
+        scheme.getStyle(Token.COMMENT_DOCUMENTATION).foreground = getConfigSyntaxHighlightingTokenColor(
+                "COMMENT_DOCUMENTATION");
         scheme.getStyle(Token.COMMENT_EOL).foreground = getConfigSyntaxHighlightingTokenColor("COMMENT_EOL");
 
         scheme.getStyle(Token.SEPARATOR).foreground = getConfigSyntaxHighlightingTokenColor("SEPARATOR");
@@ -730,20 +786,25 @@ public class ScriptorTextAreaTabManager {
         scheme.getStyle(Token.MARKUP_DTD).foreground = getConfigSyntaxHighlightingTokenColor("MARKUP_DTD");
         // scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = Color.BLUE;
         // scheme.getStyle(Token.MARKUP_PROCESSING_INSTRUCTION).foreground = Color.BLUE;
-        scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE).foreground = getConfigSyntaxHighlightingTokenColor("MARKUP_TAG_ATTRIBUTE");
-        scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE_VALUE).foreground = getConfigSyntaxHighlightingTokenColor("MARKUP_TAG_ATTRIBUTE_VALUE");
-        scheme.getStyle(Token.MARKUP_TAG_DELIMITER).foreground = getConfigSyntaxHighlightingTokenColor("MARKUP_TAG_DELIMITER");
+        scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE).foreground = getConfigSyntaxHighlightingTokenColor(
+                "MARKUP_TAG_ATTRIBUTE");
+        scheme.getStyle(Token.MARKUP_TAG_ATTRIBUTE_VALUE).foreground = getConfigSyntaxHighlightingTokenColor(
+                "MARKUP_TAG_ATTRIBUTE_VALUE");
+        scheme.getStyle(Token.MARKUP_TAG_DELIMITER).foreground = getConfigSyntaxHighlightingTokenColor(
+                "MARKUP_TAG_DELIMITER");
         scheme.getStyle(Token.MARKUP_TAG_NAME).foreground = getConfigSyntaxHighlightingTokenColor("MARKUP_TAG_NAME");
 
         textArea.setSyntaxScheme(scheme);
     }
 
     private Color getConfigSyntaxHighlightingTokenColor(String token) {
-        return Color.decode((String) scriptor.pluginsHandler.getMergedConfig().get("syntax.highlight.tokens." + token + ".color"));
+        return Color.decode(
+                (String) scriptor.pluginsHandler.getMergedConfig().get("syntax.highlight.tokens." + token + ".color"));
     }
 
     private Icon getFileIcon(File file) {
-        File fileIcon = new File("resources/icons/" + ScriptorProgrammingLanguagesUtils.getLanguageIconNameByFile(file));
+        File fileIcon = new File(
+                "resources/icons/" + ScriptorProgrammingLanguagesUtils.getLanguageIconNameByFile(file));
 
         return fileIcon == null ? null : resizeSVGToIcon(fileIcon.getPath(), 14, 14);
     }
@@ -769,7 +830,7 @@ public class ScriptorTextAreaTabManager {
 
             return icon;
         } catch (IOException | TranscoderException e) {
-            e.printStackTrace();
+            scriptor.logger.insert(e.toString());
             return null;
         }
     }

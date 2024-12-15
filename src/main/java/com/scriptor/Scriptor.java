@@ -51,8 +51,11 @@ public class Scriptor extends JFrame implements ActionListener {
     public Scriptor() {
         logger.clearAll();
 
+        logger.insert("Loading plugins...");
         pluginsHandler.loadPlugins();
+        logger.insert("Loaded " + pluginsHandler.getPlugins().size() + " plugins.");
 
+        logger.insert("Loading frame...");
         setTitle("Scriptor");
         setSize(1400, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -184,13 +187,19 @@ public class Scriptor extends JFrame implements ActionListener {
         });
 
         // Others
-        textAreaTabManager.openPreviousTabs();
+        if (config.getOpenPreviousFilesOnStartup()) {
+            textAreaTabManager.openPreviousTabs();
+        } else {
+            textAreaTabManager.newFile();
+        }
 
         new ScriptorKeybinds(this, textAreaTabPane);
 
         updateStatusBar();
 
         newWelcomeNotification();
+
+        logger.insert("Loaded frame, Scriptor is now ready to use.");
     }
 
     public static void main(String[] args) {
@@ -205,7 +214,7 @@ public class Scriptor extends JFrame implements ActionListener {
     }
 
     public static String getVersion() {
-        return "2024.12.09-1";
+        return "1.0.0-prerelease-1";
     }
 
     public void setSystemLookAndFeel() {
@@ -213,12 +222,12 @@ public class Scriptor extends JFrame implements ActionListener {
             try {
                 UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
+                logger.insert(e.toString());
             }
 
             SwingUtilities.updateComponentTreeUI(this);
         } catch (UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
+            logger.insert(e.toString());
         }
     }
 

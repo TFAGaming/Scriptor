@@ -74,7 +74,6 @@ public class ScriptorPluginsPanel extends JPanel {
         secondaryPanel.setLayout(new BorderLayout());
 
         JButton editButton = new JButton("Edit JSON");
-        editButton.setEnabled(!plugin.getSystem());
         editButton.setFocusable(false);
         editButton.addActionListener(new ActionListener() {
             @Override
